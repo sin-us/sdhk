@@ -24,5 +24,7 @@ install:
       Write-Host "Copying the MonoGame content pipeline to $programFiles..."
       Copy-Item "$installerExtracted\`$PROGRAMFILES\MSBuild\MonoGame" "$programFiles\MSBuild" -Recurse 
 
+before_build:
+  - nuget restore SDHK.sln
 build:
   verbosity: minimal
