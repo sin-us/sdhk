@@ -1,0 +1,11 @@
+#############################
+# Project Tools Information #
+#############################
+
+## Online Tools
+https://www.appveyor.com/ - Continuous Integration Tool
+
+## Local Tools
+https://www.microsoft.com/net/core#windowsvs2017 - Visual Studio Community 2017
+https://www.sourcetreeapp.com/ - Source Tree(Version Control client)
+http://meldmerge.org/ - Meld(diff/merge tool)
