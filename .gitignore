@@ -1,0 +1,7 @@
+GameWorld/bin/**/*.*
+.vs/**/*.*
+GameWorld/Content/bin/**/*.*
+GameWorld/Content/obj/**/*.*
+packages/**/*.*
+GameWorld/obj/**/*.*
+**/*.csproj.user
