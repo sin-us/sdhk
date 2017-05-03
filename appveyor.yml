@@ -2,9 +2,27 @@ version: 0.0.{build}
 image: Visual Studio 2017
 
 install:
-  # MonoGame
-  - ps: (new-object net.webclient).DownloadFile('http://www.monogame.net/releases/v3.6/MonoGameSetup.exe', 'C:\MonoGameSetup.exe')
-  - ps: Invoke-Command -ScriptBlock {C:\MonoGameSetup.exe /S /v/qn}
+# Install MonoGame
+# Credits to https://github.com/mattleibow/jitterphysics
+  - cinst 7zip -x86
+  - cinst 7zip.commandline -x86
+  - ps: |
+      $tempDir="$pwd\temp"
+      $installerUrl="http://www.monogame.net/releases/v3.6/MonoGameSetup.exe"
+      $installerFile="$tempDir\MonoGameSetup.zip"
+      $installerExtracted="$tempDir\MonoGameSetup"
+      $programFiles = "${env:ProgramFiles(x86)}\"
+      
+      Write-Host "Downloading MonoGame to $installerFile..."
+      If ((Test-Path  $tempDir) -eq 0) {
+          New-Item -ItemType Directory $tempDir
+      }
+      Invoke-WebRequest $installerUrl -OutFile $installerFile
+      
+      Write-Host "Extracting MonoGame to $installerExtracted..."
+      7z x -y $installerFile -o"$installerExtracted"
+      Write-Host "Copying the MonoGame content pipeline to $programFiles..."
+      Copy-Item "$installerExtracted\`$PROGRAMFILES\MSBuild\MonoGame" "$programFiles\MSBuild" -Recurse 
 
 build:
   verbosity: minimal
