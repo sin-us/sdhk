@@ -1,9 +1,11 @@
+using HexLib;
 using GameWorld.Animation2D;
 using GameWorld.Particles2D;
 using GameWorld.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameWorld.HexGrid;
 using System;
 using System.Collections.Generic;
 
@@ -24,6 +26,8 @@ namespace GameWorld
 		private SpriteFont generalFont;
 		private AnimatedSprite animatedSprite;
 		private ParticleEngine2D particleEngine;
+
+        private HexGrid _hexGrid;
 
 		public Game1()
 		{
@@ -111,6 +115,9 @@ namespace GameWorld
 			particleEngine.SizeVelocityMultiplier = 0.0f;
 			particleEngine.TimeToLiveBase = 20;
 			particleEngine.TimeToLiveRandomRange = 50;
+
+
+            _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
 		}
 
 		/// <summary>
@@ -192,16 +199,27 @@ namespace GameWorld
 		{
 			GraphicsDevice.Clear(Color.Black);
 
-			// TODO: Add your drawing code here
-
 			// Show FPS
 			++FrameRateCounter.FrameCounter;
-			spriteBatch.Begin();
+
+            // Hex Grid
+            spriteBatch.Begin();
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    _hexGrid.RenderTile(new OffsetPoint(i, j), 0, 0, spriteBatch, Color.White, BlendState.AlphaBlend);
+                }
+            }
+            spriteBatch.End();
+
+
+            spriteBatch.Begin();
 			spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
 			spriteBatch.End();
 
-			// show animated sprite
-			animatedSprite.Draw(spriteBatch, Color.White, BlendState.AlphaBlend);
+            // show animated sprite
+            animatedSprite.Draw(spriteBatch, Color.White, BlendState.AlphaBlend);
 
 			// show particles
 			particleEngine.Draw(spriteBatch, BlendState.Additive);
