@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace GameWorld.Utilities
+namespace MonoGameWorld.Utilities
 {
 	public static class FrameRateCounter
 	{
