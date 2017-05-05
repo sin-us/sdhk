@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace GameWorld.Particles2D
+namespace MonoGameWorld.Particles2D
 {
 	public class Particle2D
 	{

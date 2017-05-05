@@ -1,11 +1,11 @@
-using GameWorld.Animation2D;
-using GameWorld.Particles2D;
-using GameWorld.Utilities;
+using MonoGameWorld.Utilities;
+using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace GameWorld
 {
@@ -17,21 +17,18 @@ namespace GameWorld
 		private GraphicsDeviceManager graphics;
 		private SpriteBatch spriteBatch;
 
-		private TimeSpan elapsedTime;
-		private float locationDelta;
-		private float locationEpsilon;
-
 		private SpriteFont generalFont;
-		private AnimatedSprite animatedSprite;
-		private ParticleEngine2D particleEngine;
+      private Model model;
+      private float angle;
 
-		public Game1()
+      private Matrix world;
+      private Matrix view;
+      private Matrix projection;
+
+      public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
-
-			locationDelta = 2.0f;
-			locationEpsilon = 4.0f;
 		}
 
 		/// <summary>
@@ -42,8 +39,20 @@ namespace GameWorld
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
-			base.Initialize();
+         // TODO: Add your initialization logic here
+         world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+         view = Matrix.CreateLookAt(new Vector3(0, 0, 10), new Vector3(0, 0, 0), Vector3.UnitY);
+         projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 480f, 0.1f, 100f);
+
+         angle = 0;
+
+         MouseManager.IsPointerVisible = true;
+         this.IsMouseVisible = MouseManager.IsPointerVisible;
+         MouseManager.LoadCustomCursor(@"Content\AnimatedCursor.ani");
+         Form winForm = (Form)Form.FromHandle(this.Window.Handle);
+         winForm.Cursor = MouseManager.CustomCursor;
+
+         base.Initialize();
 		}
 
 		/// <summary>
@@ -60,58 +69,8 @@ namespace GameWorld
 			// set up font
 			generalFont = Content.Load<SpriteFont>("GeneralFont");
 
-			// set up animated sprite
-			Texture2D textureAtlas = Content.Load<Texture2D>("TextureAtlasExample");
-
-			Dictionary<string, List<FramePosition>> animationBindings = new Dictionary<string, List<FramePosition>>();
-			List<FramePosition> frameList = new List<FramePosition>();
-
-			frameList = new List<FramePosition>();
-			frameList.Add(new FramePosition(0, 0));
-			frameList.Add(new FramePosition(1, 0));
-			frameList.Add(new FramePosition(2, 0));
-			frameList.Add(new FramePosition(3, 0));			
-			animationBindings.Add("down", frameList);
-
-			frameList = new List<FramePosition>();
-			frameList.Add(new FramePosition(0, 1));
-			frameList.Add(new FramePosition(1, 1));
-			frameList.Add(new FramePosition(2, 1));
-			frameList.Add(new FramePosition(3, 1));
-			animationBindings.Add("left", frameList);
-
-			frameList = new List<FramePosition>();
-			frameList.Add(new FramePosition(0, 2));
-			frameList.Add(new FramePosition(1, 2));
-			frameList.Add(new FramePosition(2, 2));
-			frameList.Add(new FramePosition(3, 2));
-			animationBindings.Add("right", frameList);
-
-			frameList = new List<FramePosition>();
-			frameList.Add(new FramePosition(0, 3));
-			frameList.Add(new FramePosition(1, 3));
-			frameList.Add(new FramePosition(2, 3));
-			frameList.Add(new FramePosition(3, 3));
-			animationBindings.Add("up", frameList);
-
-			animatedSprite = new AnimatedSprite(textureAtlas, 4, 4, animationBindings);
-			animatedSprite.AnimationName = "right";
-			animatedSprite.Location = new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2);
-
-			// set up particle engine
-			List<Texture2D> textureList = new List<Texture2D>();
-			textureList.Add(Content.Load<Texture2D>("Sparkle"));
-
-			particleEngine = new ParticleEngine2D(textureList, new Vector2(400, 240));
-			particleEngine.ParticlesPerEmition = 3;
-			particleEngine.VelocityMultipliers = new Vector2(0.7f, 0.7f);
-			particleEngine.AngularVelocityMultiplier = 0.1f;
-			particleEngine.ColorPicker = PickColor;
-			particleEngine.SizeMultiplier = 0.5f;
-			particleEngine.SizeVelocityMultiplier = 0.0f;
-			particleEngine.TimeToLiveBase = 20;
-			particleEngine.TimeToLiveRandomRange = 50;
-		}
+         model = Content.Load<Model>("lava_cube");
+      }
 
 		/// <summary>
 		/// UnloadContent will be called once per game and is the place to unload
@@ -130,58 +89,19 @@ namespace GameWorld
 		protected override void Update(GameTime gameTime)
 		{
 			// Allows the game to exit
-			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-				this.Exit();
+			/*if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+				this.Exit();*/
 
 			// TODO: Add your update logic here
 
 			// update frame rate
 			FrameRateCounter.Update(gameTime);
+         MouseManager.Update();
+         
+         angle += 0.01f;
+         world = Matrix.CreateRotationX(angle) * Matrix.CreateRotationY(angle);
 
-			// get mouse position
-			Vector2 mousePosition = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-
-			// update animated sprite
-			elapsedTime += gameTime.ElapsedGameTime;
-
-			if (elapsedTime > TimeSpan.FromSeconds(0.2))
-			{
-				elapsedTime -= TimeSpan.FromSeconds(0.2);
-				animatedSprite.Update();
-			}
-
-			if (Math.Abs(animatedSprite.Location.X - mousePosition.X) > locationEpsilon)
-			{
-				if (animatedSprite.Location.X < mousePosition.X)
-				{
-					animatedSprite.Location = new Vector2(animatedSprite.Location.X + locationDelta, animatedSprite.Location.Y);
-					animatedSprite.AnimationName = "right";
-				}
-				else if (animatedSprite.Location.X > mousePosition.X)
-				{
-					animatedSprite.Location = new Vector2(animatedSprite.Location.X - locationDelta, animatedSprite.Location.Y);
-					animatedSprite.AnimationName = "left";
-				}
-			}
-			else if (Math.Abs(animatedSprite.Location.Y - mousePosition.Y) > locationEpsilon)
-			{
-			   if (animatedSprite.Location.Y < mousePosition.Y)
-				{
-					animatedSprite.Location = new Vector2(animatedSprite.Location.X, animatedSprite.Location.Y + locationDelta);
-					animatedSprite.AnimationName = "down";
-				}
-				else if (animatedSprite.Location.Y > mousePosition.Y)
-				{
-					animatedSprite.Location = new Vector2(animatedSprite.Location.X, animatedSprite.Location.Y - locationDelta);
-					animatedSprite.AnimationName = "up";
-				}
-			}
-
-			// update particles engine
-			particleEngine.EmitterLocation = mousePosition;
-			particleEngine.Update();
-
-			base.Update(gameTime);
+         base.Update(gameTime);
 		}
 
 		/// <summary>
@@ -190,7 +110,7 @@ namespace GameWorld
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.Black);
+			GraphicsDevice.Clear(Color.DarkGray);
 
 			// TODO: Add your drawing code here
 
@@ -198,25 +118,63 @@ namespace GameWorld
 			++FrameRateCounter.FrameCounter;
 			spriteBatch.Begin();
 			spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
-			spriteBatch.End();
+         spriteBatch.DrawString(generalFont, "Left: " + 
+                                                      "{D: " + MouseManager.MouseStatus.LeftButton.IsDown + " " +
+                                                      "P: " + MouseManager.MouseStatus.LeftButton.IsPressed + " " +
+                                                      "R: " + MouseManager.MouseStatus.LeftButton.IsReleased + "}"
+                                                       , new Vector2(10, 30), Color.White);
+         spriteBatch.DrawString(generalFont, "Middle: " +
+                                                      "{D: " + MouseManager.MouseStatus.MiddleButton.IsDown + " " +
+                                                      "P: " + MouseManager.MouseStatus.MiddleButton.IsPressed + " " +
+                                                      "R: " + MouseManager.MouseStatus.MiddleButton.IsReleased + "}"
+                                                       , new Vector2(10, 50), Color.White);
+         spriteBatch.DrawString(generalFont, "Right: " +
+                                                      "{D: " + MouseManager.MouseStatus.RightButton.IsDown + " " +
+                                                      "P: " + MouseManager.MouseStatus.RightButton.IsPressed + " " +
+                                                      "R: " + MouseManager.MouseStatus.RightButton.IsReleased + "}"
+                                                       , new Vector2(10, 70), Color.White);
+         spriteBatch.DrawString(generalFont, "xB1: " +
+                                                      "{D: " + MouseManager.MouseStatus.XButton1.IsDown + " " +
+                                                      "P: " + MouseManager.MouseStatus.XButton1.IsPressed + " " +
+                                                      "R: " + MouseManager.MouseStatus.XButton1.IsReleased + "}"
+                                                       , new Vector2(10, 90), Color.White);
+         spriteBatch.DrawString(generalFont, "xB2: " +
+                                                      "{D: " + MouseManager.MouseStatus.XButton2.IsDown + " " +
+                                                      "P: " + MouseManager.MouseStatus.XButton2.IsPressed + " " +
+                                                      "R: " + MouseManager.MouseStatus.XButton2.IsReleased + "}"
+                                                       , new Vector2(10, 110), Color.White);
+         spriteBatch.DrawString(generalFont, "DeltaX: " + MouseManager.MouseStatus.DeltaX, new Vector2(10, 130), Color.White);
+         spriteBatch.DrawString(generalFont, "DeltaY: " + MouseManager.MouseStatus.DeltaY, new Vector2(10, 150), Color.White);
+         spriteBatch.DrawString(generalFont, "DeltaW: " + MouseManager.MouseStatus.WheelDelta, new Vector2(10, 170), Color.White);
+         spriteBatch.End();
 
-			// show animated sprite
-			animatedSprite.Draw(spriteBatch, Color.White, BlendState.AlphaBlend);
+         DrawModel(model, world, view, projection);
 
-			// show particles
-			particleEngine.Draw(spriteBatch, BlendState.Additive);
-
-			base.Draw(gameTime);
+         base.Draw(gameTime);
 		}
 
-		private Color PickColor()
-		{
-			Random random = new Random();
+      private void DrawModel(Model model, Matrix world, Matrix view, Matrix projection)
+      {
+         foreach (ModelMesh mesh in model.Meshes)
+         {
+            foreach (BasicEffect effect in mesh.Effects)
+            {
+               effect.LightingEnabled = true;
+               effect.PreferPerPixelLighting = true;
+               effect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
+               effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
+               effect.DirectionalLight0.DiffuseColor = new Vector3(0.7f, 0.7f, 0.7f);
+               effect.FogEnabled = true;
+               effect.FogColor = Color.DarkGray.ToVector3();
+               effect.FogStart = 8.0f;
+               effect.FogEnd = 10.0f;
+               effect.World = world;
+               effect.View = view;
+               effect.Projection = projection;
+            }
 
-			float randRG = (float)random.NextDouble();
-			float randB = (float)random.NextDouble();
-
-			return new Color(randRG, randRG, randB / 2.0f);
-		}
-	}
+            mesh.Draw();
+         }
+      }
+   }
 }
