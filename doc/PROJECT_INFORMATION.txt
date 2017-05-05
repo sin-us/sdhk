@@ -1,0 +1,14 @@
+############################
+# SDHK Project Information #
+############################
+
+## Project path on GitHub
+https://github.com/sin-us/sdhk
+
+## Work board on Trello
+https://trello.com/b/WnXjochi/sdhc
+
+## Contributors(S D HK)
+Sin-us
+Diver
+Harmonic Kolobok
