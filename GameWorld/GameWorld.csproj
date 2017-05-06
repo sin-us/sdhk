@@ -65,6 +65,7 @@
     <Compile Include="Animation\2D\AnimatedSprite.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="HexGrid\HexGrid.cs" />
+    <Compile Include="HexGrid\HexSphere.cs" />
     <Compile Include="Particles\2D\Particle2D.cs" />
     <Compile Include="Particles\2D\ParticleEngine2D.cs" />
     <Compile Include="Program.cs" />

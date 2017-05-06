@@ -1,0 +1,1 @@
+﻿Credits and thanks for implementation: https://github.com/vraid/earthgen-old

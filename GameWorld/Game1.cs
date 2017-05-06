@@ -27,11 +27,16 @@ namespace GameWorld
 		private AnimatedSprite animatedSprite;
 		private ParticleEngine2D particleEngine;
 
+        private BasicEffect effect;
+
         private HexGrid _hexGrid;
+        private HexSphere _hexSphere;
 
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1200;
+            graphics.PreferredBackBufferHeight = 800;
 			Content.RootDirectory = "Content";
 
 			locationDelta = 2.0f;
@@ -50,14 +55,16 @@ namespace GameWorld
 			base.Initialize();
 		}
 
-		/// <summary>
-		/// LoadContent will be called once per game and is the place to load
-		/// all of your content.
-		/// </summary>
-		protected override void LoadContent()
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent()
 		{
-			// Create a new SpriteBatch, which can be used to draw textures.
-			spriteBatch = new SpriteBatch(GraphicsDevice);
+            effect = new BasicEffect(graphics.GraphicsDevice);
+
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
 
@@ -118,6 +125,7 @@ namespace GameWorld
 
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
+            _hexSphere = new HexSphere(5);
 		}
 
 		/// <summary>
@@ -191,16 +199,16 @@ namespace GameWorld
 			base.Update(gameTime);
 		}
 
-		/// <summary>
-		/// This is called when the game should draw itself.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Draw(GameTime gameTime)
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.Black);
 
-			// Show FPS
-			++FrameRateCounter.FrameCounter;
+            // Show FPS
+            ++FrameRateCounter.FrameCounter;
 
             // Hex Grid
             spriteBatch.Begin();
@@ -213,9 +221,19 @@ namespace GameWorld
             }
             spriteBatch.End();
 
+            // Hex Sphere
+            _hexSphere.Draw(graphics, effect);
+
+
+            Texture2D SimpleTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            Int32[] pixel = { 0xFFFFFF }; // White. 0xFF is Red, 0xFF0000 is Blue
+            SimpleTexture.SetData<Int32>(pixel, 0, SimpleTexture.Width * SimpleTexture.Height);
+
+
 
             spriteBatch.Begin();
-			spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
+
+            spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
 			spriteBatch.End();
 
             // show animated sprite
@@ -224,7 +242,7 @@ namespace GameWorld
 			// show particles
 			particleEngine.Draw(spriteBatch, BlendState.Additive);
 
-			base.Draw(gameTime);
+            base.Draw(gameTime);
 		}
 
 		private Color PickColor()
