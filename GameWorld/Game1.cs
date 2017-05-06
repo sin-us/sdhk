@@ -42,7 +42,7 @@ namespace GameWorld
             // TODO: Add your initialization logic here
             world = Matrix.CreateTranslation(new Vector3(0, 0, 0));
             view = Matrix.CreateLookAt(new Vector3(0, 0, 10), new Vector3(0, 0, 0), Vector3.UnitY);
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 480f, 0.1f, 100f);
+            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 480f, 0.1f, 1000f);
 
             angle = 0;
 
@@ -163,7 +163,7 @@ namespace GameWorld
                     effect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
                     effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
                     effect.DirectionalLight0.DiffuseColor = new Vector3(0.7f, 0.7f, 0.7f);
-                    //effect.FogEnabled = true;
+                    effect.FogEnabled = true;
                     effect.FogColor = Color.DarkGray.ToVector3();
                     effect.FogStart = 8.0f;
                     effect.FogEnd = 10.0f;
