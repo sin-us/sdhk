@@ -1,10 +1,10 @@
 using MonoGameWorld.Utilities;
+using MonoGameWorld.Inputs.Keyboard;
 using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace GameWorld
@@ -89,13 +89,14 @@ namespace GameWorld
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            /*if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-				this.Exit();*/
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
+				this.Exit();
 
             // TODO: Add your update logic here
 
             // update frame rate
             FrameRateCounter.Update(gameTime);
+            KeyboardManager.Update();
             MouseManager.Update();
 
             angle += 0.01f;
@@ -114,41 +115,39 @@ namespace GameWorld
 
             // TODO: Add your drawing code here
 
+            // Draw any meshes before the text in order for it to be on the top
+            DrawModel(model, world, view, projection);
+
             // Show FPS
             ++FrameRateCounter.FrameCounter;
             spriteBatch.Begin();
-            spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
+            spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 0), Color.White);
             spriteBatch.DrawString(generalFont, "Left: " +
                                                          "{D: " + MouseManager.MouseStatus.LeftButton.IsDown + " " +
                                                          "P: " + MouseManager.MouseStatus.LeftButton.IsPressed + " " +
                                                          "R: " + MouseManager.MouseStatus.LeftButton.IsReleased + "}"
-                                                          , new Vector2(10, 30), Color.White);
+                                                          , new Vector2(10, 20), Color.White);
             spriteBatch.DrawString(generalFont, "Middle: " +
                                                          "{D: " + MouseManager.MouseStatus.MiddleButton.IsDown + " " +
                                                          "P: " + MouseManager.MouseStatus.MiddleButton.IsPressed + " " +
                                                          "R: " + MouseManager.MouseStatus.MiddleButton.IsReleased + "}"
-                                                          , new Vector2(10, 50), Color.White);
+                                                          , new Vector2(10, 40), Color.White);
             spriteBatch.DrawString(generalFont, "Right: " +
                                                          "{D: " + MouseManager.MouseStatus.RightButton.IsDown + " " +
                                                          "P: " + MouseManager.MouseStatus.RightButton.IsPressed + " " +
                                                          "R: " + MouseManager.MouseStatus.RightButton.IsReleased + "}"
-                                                          , new Vector2(10, 70), Color.White);
-            spriteBatch.DrawString(generalFont, "xB1: " +
-                                                         "{D: " + MouseManager.MouseStatus.XButton1.IsDown + " " +
-                                                         "P: " + MouseManager.MouseStatus.XButton1.IsPressed + " " +
-                                                         "R: " + MouseManager.MouseStatus.XButton1.IsReleased + "}"
-                                                          , new Vector2(10, 90), Color.White);
-            spriteBatch.DrawString(generalFont, "xB2: " +
-                                                         "{D: " + MouseManager.MouseStatus.XButton2.IsDown + " " +
-                                                         "P: " + MouseManager.MouseStatus.XButton2.IsPressed + " " +
-                                                         "R: " + MouseManager.MouseStatus.XButton2.IsReleased + "}"
-                                                          , new Vector2(10, 110), Color.White);
-            spriteBatch.DrawString(generalFont, "DeltaX: " + MouseManager.MouseStatus.DeltaX, new Vector2(10, 130), Color.White);
-            spriteBatch.DrawString(generalFont, "DeltaY: " + MouseManager.MouseStatus.DeltaY, new Vector2(10, 150), Color.White);
-            spriteBatch.DrawString(generalFont, "DeltaW: " + MouseManager.MouseStatus.WheelDelta, new Vector2(10, 170), Color.White);
-            spriteBatch.End();
+                                                          , new Vector2(10, 60), Color.White);
+            spriteBatch.DrawString(generalFont, "DeltaX: " + MouseManager.MouseStatus.DeltaX, new Vector2(10, 80), Color.White);
+            spriteBatch.DrawString(generalFont, "DeltaY: " + MouseManager.MouseStatus.DeltaY, new Vector2(10, 100), Color.White);
+            spriteBatch.DrawString(generalFont, "DeltaW: " + MouseManager.MouseStatus.WheelDelta, new Vector2(10, 120), Color.White);
 
-            DrawModel(model, world, view, projection);
+            String keysString = "";
+            foreach(KeyStatus k in KeyboardManager.KeysDown)
+            {
+                keysString += k.Key.ToString() + "(" + (k.IsPressed ? "1" : "0") + ")" + " ";
+            }
+            spriteBatch.DrawString(generalFont, "Keys: " + keysString, new Vector2(10, 140), Color.White);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -164,7 +163,7 @@ namespace GameWorld
                     effect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
                     effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
                     effect.DirectionalLight0.DiffuseColor = new Vector3(0.7f, 0.7f, 0.7f);
-                    effect.FogEnabled = true;
+                    //effect.FogEnabled = true;
                     effect.FogColor = Color.DarkGray.ToVector3();
                     effect.FogStart = 8.0f;
                     effect.FogEnd = 10.0f;
