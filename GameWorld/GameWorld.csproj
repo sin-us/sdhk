@@ -66,6 +66,10 @@
     <Compile Include="Game1.cs" />
     <Compile Include="HexGrid\HexGrid.cs" />
     <Compile Include="HexGrid\HexSphere.cs" />
+    <Compile Include="Inputs\Mouse\ButtonStatus.cs" />
+    <Compile Include="Inputs\Mouse\ButtonStatusFlags.cs" />
+    <Compile Include="Inputs\Mouse\MouseManager.cs" />
+    <Compile Include="Inputs\Mouse\MouseStatus.cs" />
     <Compile Include="Particles\2D\Particle2D.cs" />
     <Compile Include="Particles\2D\ParticleEngine2D.cs" />
     <Compile Include="Program.cs" />
@@ -78,6 +82,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -92,10 +97,14 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
     <None Include="app.config" />
     <None Include="app.manifest" />
+    <None Include="Content\AnimatedCursor.ani">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\GeneralFont.spritefont" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Inputs\Keyboard\" />
     <ProjectReference Include="..\HexLib\HexLib.csproj">
       <Project>{49ffda00-1d61-45ca-a99f-78fe56814865}</Project>
       <Name>HexLib</Name>
