@@ -1,9 +1,11 @@
+using HexLib;
 using MonoGameWorld.Utilities;
 using MonoGameWorld.Inputs.Keyboard;
 using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameWorld.HexGrid;
 using System;
 using System.Windows.Forms;
 
@@ -25,9 +27,16 @@ namespace GameWorld
         private Matrix view;
         private Matrix projection;
 
+        private BasicEffect effect;
+
+        private HexGrid _hexGrid;
+        private HexSphere _hexSphere;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1200;
+            graphics.PreferredBackBufferHeight = 800;
             Content.RootDirectory = "Content";
         }
 
@@ -61,6 +70,8 @@ namespace GameWorld
         /// </summary>
         protected override void LoadContent()
         {
+            effect = new BasicEffect(graphics.GraphicsDevice);
+
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -70,6 +81,10 @@ namespace GameWorld
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             model = Content.Load<Model>("lava_cube");
+
+
+            _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
+            _hexSphere = new HexSphere(5);
         }
 
         /// <summary>
@@ -120,7 +135,27 @@ namespace GameWorld
 
             // Show FPS
             ++FrameRateCounter.FrameCounter;
+
+            // Hex Grid
             spriteBatch.Begin();
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    _hexGrid.RenderTile(new OffsetPoint(i, j), 0, 0, spriteBatch, Color.White, BlendState.AlphaBlend);
+                }
+            }
+            spriteBatch.End();
+
+            // Hex Sphere
+            _hexSphere.Draw(graphics, effect);
+            
+            Texture2D SimpleTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            Int32[] pixel = { 0xFFFFFF }; // White. 0xFF is Red, 0xFF0000 is Blue
+            SimpleTexture.SetData<Int32>(pixel, 0, SimpleTexture.Width * SimpleTexture.Height);
+            
+            spriteBatch.Begin();
+
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 0), Color.White);
             spriteBatch.DrawString(generalFont, "Left: " +
                                                          "{D: " + MouseManager.MouseStatus.LeftButton.IsDown + " " +

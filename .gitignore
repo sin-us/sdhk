@@ -1,7 +1,5 @@
-GameWorld/bin/**/*.*
-.vs/**/*.*
-GameWorld/Content/bin/**/*.*
-GameWorld/Content/obj/**/*.*
+.vs/
+obj/
+bin/
 packages/**/*.*
-GameWorld/obj/**/*.*
 **/*.csproj.user
