@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGameWorld.HexGrid;
 using System;
 using System.Windows.Forms;
-using GameWorld.ControlPanel;
+using GameWorld.Shared;
 
 namespace GameWorld
 {

@@ -1,6 +1,6 @@
 ﻿using System.ServiceModel;
 
-namespace GameWorld.ControlPanel
+namespace GameWorld.Shared
 {
     [ServiceContract]
     public interface IControlPanel

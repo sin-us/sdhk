@@ -116,9 +116,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameWorld\GameWorld.csproj">
-      <Project>{92a43b26-8c49-432b-b918-0822c47c0e5b}</Project>
-      <Name>GameWorld</Name>
+    <ProjectReference Include="..\GameWorld.Shared\GameWorld.Shared.csproj">
+      <Project>{25e10431-3fb6-4f12-a55b-cb2127a389dc}</Project>
+      <Name>GameWorld.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
