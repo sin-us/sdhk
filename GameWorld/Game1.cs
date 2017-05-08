@@ -8,6 +8,7 @@ using MonoGameWorld.HexGrid;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using GameWorld.ControlPanel;
 
 namespace GameWorld
 {
@@ -31,6 +32,9 @@ namespace GameWorld
 
         private HexGrid _hexGrid;
         private HexSphere _hexSphere;
+
+        private ControlPanelListener _controlPanelListener;
+        private string _customText = string.Empty;
 
         public Game1()
         {
@@ -85,6 +89,9 @@ namespace GameWorld
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
             _hexSphere = new HexSphere(5);
+
+            _controlPanelListener = ControlPanelListener.Create();
+            _controlPanelListener.OnSetText += val => _customText = val;
         }
 
         /// <summary>
@@ -182,6 +189,7 @@ namespace GameWorld
             spriteBatch.DrawString(generalFont, "DeltaX: " + MouseManager.MouseStatus.DeltaX, new Vector2(10, 130), Color.White);
             spriteBatch.DrawString(generalFont, "DeltaY: " + MouseManager.MouseStatus.DeltaY, new Vector2(10, 150), Color.White);
             spriteBatch.DrawString(generalFont, "DeltaW: " + MouseManager.MouseStatus.WheelDelta, new Vector2(10, 170), Color.White);
+            spriteBatch.DrawString(generalFont, _customText, new Vector2(10, 190), Color.White);
             spriteBatch.End();
 
 
