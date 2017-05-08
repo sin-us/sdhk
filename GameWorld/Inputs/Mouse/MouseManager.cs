@@ -13,7 +13,7 @@ namespace MonoGameWorld.Inputs.Mouse
         public static MouseStatus MouseStatus { get; }
         public static Cursor CustomCursor => customCursor;
         public static bool IsPointerVisible { get; set; }
-
+        
         static MouseManager()
         {
             MouseStatus = new MouseStatus();
@@ -23,7 +23,7 @@ namespace MonoGameWorld.Inputs.Mouse
 
         public static void Update()
         {
-            MouseStatus.FromXnaMouseState(Microsoft.Xna.Framework.Input.Mouse.GetState());
+            MouseStatus.FromXnaMouseState(Microsoft.Xna.Framework.Input.Mouse.GetState());            
         }
 
         #region Custom cursor handling

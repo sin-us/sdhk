@@ -7,7 +7,6 @@ namespace MonoGameWorld.Inputs.Mouse
     {
         None = 0,
         Down = 1,
-        Pressed = 2,
-        Released = 4
+        Pressed = 2
     }
 }
