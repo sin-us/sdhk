@@ -9,6 +9,7 @@ using MonoGameWorld.HexGrid;
 using System;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
+using GameWorld.Shared;
 
 namespace GameWorld
 {
@@ -28,6 +29,9 @@ namespace GameWorld
         private HexSphere _hexSphere;
         private bool isWireFrame;
         private Vector3 modelPosition;
+
+        private ControlPanelListener _controlPanelListener;
+        private string _customText = string.Empty;
 
         public Game1()
         {
@@ -84,6 +88,9 @@ namespace GameWorld
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
             _hexSphere = new HexSphere(5);
+
+            _controlPanelListener = ControlPanelListener.Create();
+            _controlPanelListener.OnSetText += val => _customText = val;
         }
 
         /// <summary>
