@@ -63,6 +63,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Animation\2D\AnimatedSprite.cs" />
+    <Compile Include="Camera\Camera.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Inputs\Keyboard\KeyboardManager.cs" />
     <Compile Include="Inputs\Keyboard\KeyStatus.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\FrameRateCounter.cs" />
+    <Compile Include="Utilities\Mathematics.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
