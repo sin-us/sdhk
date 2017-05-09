@@ -21,13 +21,11 @@
                         IsPressed = false;
                     }
 
-                    IsReleased = false;
                     buttonStateFlags |= ButtonStatusFlags.Down;
                 }
                 else
                 {
                     IsPressed = false;
-                    IsReleased = true;
                     buttonStateFlags &= ~ButtonStatusFlags.Down;
                 }
             }
@@ -45,22 +43,6 @@
                 else
                 {
                     buttonStateFlags &= ~ButtonStatusFlags.Pressed;
-                }
-            }
-        }
-
-        public bool IsReleased
-        {
-            get { return (buttonStateFlags & ButtonStatusFlags.Released) != 0; }
-            set
-            {
-                if (value)
-                {
-                    buttonStateFlags |= ButtonStatusFlags.Released;
-                }
-                else
-                {
-                    buttonStateFlags &= ~ButtonStatusFlags.Released;
                 }
             }
         }
