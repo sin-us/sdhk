@@ -106,12 +106,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Inputs\Keyboard\" />
+    <ProjectReference Include="..\GameWorld.Shared\GameWorld.Shared.csproj">
+      <Project>{25E10431-3FB6-4F12-A55B-CB2127A389DC}</Project>
+      <Name>GameWorld.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HexLib\HexLib.csproj">
       <Project>{49ffda00-1d61-45ca-a99f-78fe56814865}</Project>
       <Name>HexLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
