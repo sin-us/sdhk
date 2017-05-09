@@ -29,6 +29,7 @@ namespace GameWorld
         private Matrix projection;
 
         private BasicEffect effect;
+        private BasicEffect sphereEffect;
 
         private HexGrid _hexGrid;
         private HexSphere _hexSphere;
@@ -75,6 +76,7 @@ namespace GameWorld
         protected override void LoadContent()
         {
             effect = new BasicEffect(graphics.GraphicsDevice);
+            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -135,13 +137,10 @@ namespace GameWorld
         {
             GraphicsDevice.Clear(Color.DarkGray);
 
-            // TODO: Add your drawing code here
-
-            // Draw any meshes before the text in order for it to be on the top
-            DrawModel(model, world, view, projection);
-
             // Show FPS
             ++FrameRateCounter.FrameCounter;
+
+            // Draw any meshes before the text in order for it to be on the top
 
             // Hex Grid
             spriteBatch.Begin();
@@ -155,12 +154,10 @@ namespace GameWorld
             spriteBatch.End();
 
             // Hex Sphere
-            _hexSphere.Draw(graphics, effect);
-            
-            Texture2D SimpleTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-            Int32[] pixel = { 0xFFFFFF }; // White. 0xFF is Red, 0xFF0000 is Blue
-            SimpleTexture.SetData<Int32>(pixel, 0, SimpleTexture.Width * SimpleTexture.Height);
-            
+            _hexSphere.Draw(graphics, sphereEffect);
+
+            DrawModel(model, world, view, projection);
+
             spriteBatch.Begin();
 
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 0), Color.White);
