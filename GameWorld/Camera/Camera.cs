@@ -16,15 +16,8 @@ namespace MonoGameWorld.Camera
     class Camera
     {
         private CameraType cameraType;
-        private Vector3 offset;
-        private int width;
-        private int height;
-        private Quaternion rotation = Quaternion.Identity;
-        private Single fov;
-        private Vector3 up;
-        private Vector3? lookAt;
-        private Double radius;
-        
+        Quaternion rotation;
+
         public CameraType CameraType
         {
             get { return cameraType; }
@@ -45,96 +38,29 @@ namespace MonoGameWorld.Camera
         }
         public Matrix ViewMatrix { get; set; } = Matrix.Identity;
         public Matrix ProjectionMatrix { get; set; }
-        public Vector3 Offset
-        {
-            get { return offset; }
-            set
-            {
-                if (offset == value)
-                    return;
-
-                offset = value;
-            }
-        }
-        public Quaternion Rotation
-        {
-            get { return rotation; }
-            set
-            {
-                if (rotation == value)
-                    return;
-
-                rotation = value;
-            }
-        }
-        public Vector3? LookAt
-        {
-            get { return lookAt; }
-            set
-            {
-                if (lookAt == value)
-                    return;
-
-                lookAt = value;
-            }
-        }
-        public Vector3 Up
-        {
-            get { return up; }
-            set
-            {
-                if (up == value)
-                    return;
-
-                up = value;
-            }
-        }
+        public Vector3 Offset { get; set; }
+        public Quaternion Rotation { get => rotation; set => rotation = value; }
+        public Vector3? LookAt { get; set; }
+        public Vector3 Up { get; set; }
         public Vector3 XAxis { get; private set; }
         public Vector3 YAxis { get; private set; }
         public Vector3 ZAxis { get; private set; }
-        public int Width
-        {
-            get { return width; }
-            set
-            {
-                if (width == value)
-                    return;
-
-                width = value;
-            }
-        }
-        public int Height
-        {
-            get { return height; }
-            set
-            {
-                if (height == value)
-                    return;
-
-                height = value;
-            }
-        }
-        public Single Fov
-        {
-            get { return fov; }
-            set
-            {
-                if (fov == value)
-                    return;
-                
-                fov = value;
-            }
-        }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public Single Fov { get; set; }
         public Single FovY { get; set; }
         public Single ZNear { get; set; }
         public Single ZFar { get; set; }
         public Single AspectRatio { get; set; }
+        public float MovementVelocity { get; set; }
+        public float RotationVelocity { get; set; }
 
         public Camera(Single fov, Int32 width, Int32 height, Single znear, Single zfar)
         {
             Offset = Vector3.Zero;
             LookAt = Vector3.Forward;
             Up = Vector3.UnitY;
+            Rotation = Quaternion.Identity;
             /*Velocity = 1;
             CurrentVelocity = 0;
             WheelVelocity = 1;*/
@@ -153,6 +79,9 @@ namespace MonoGameWorld.Camera
 
             //IsLookingBackwards = false;
 
+            MovementVelocity = 10.0f;
+            RotationVelocity = 50.0f;
+
             Initialize();
         }
 
@@ -161,6 +90,7 @@ namespace MonoGameWorld.Camera
             Offset = position;
             LookAt = lookAt;
             Up = up;
+            Rotation = Quaternion.Identity;
             /*Velocity = 1;
             CurrentVelocity = 0;
             WheelVelocity = 1;*/
@@ -178,6 +108,10 @@ namespace MonoGameWorld.Camera
             CameraType = CameraType.Free;
 
             //IsLookingBackwards = false;
+
+            MovementVelocity = 10.0f;
+            RotationVelocity = 50.0f;
+
             Initialize();
         }
 
