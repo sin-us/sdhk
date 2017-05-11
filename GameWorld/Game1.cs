@@ -25,6 +25,7 @@ namespace GameWorld
         private Model model;
         private Matrix modelWorld;
         private BasicEffect effect;
+        private BasicEffect sphereEffect;
         private HexGrid _hexGrid;
         private HexSphere _hexSphere;
         private bool isWireFrame;
@@ -75,6 +76,7 @@ namespace GameWorld
         protected override void LoadContent()
         {
             effect = new BasicEffect(graphics.GraphicsDevice);
+            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -221,13 +223,11 @@ namespace GameWorld
         {
             GraphicsDevice.Clear(Color.DarkGray);
 
-            // TODO: Add your drawing code here
-
-            // Draw any meshes before the text in order for it to be on the top
             DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
-
             // Show FPS
             ++FrameRateCounter.FrameCounter;
+            // Draw any meshes before the text in order for it to be on the top
+
             spriteBatch.Begin();
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
             spriteBatch.DrawString(generalFont, "W/A/S/D: forward/left/backwards/right\n" + 
@@ -238,6 +238,10 @@ namespace GameWorld
                                                 "R: toggle fixed framerate\n" +
                                                 "T: toggle fullscreen\n" +
                                                 "Esc: close app\n", new Vector2(10, 30), Color.White);
+            _hexSphere.Draw(graphics, sphereEffect);
+
+
+            spriteBatch.DrawString(generalFont, _customText, new Vector2(10, 190), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
