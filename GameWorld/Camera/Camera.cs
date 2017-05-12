@@ -16,7 +16,7 @@ namespace MonoGameWorld.Camera
     class Camera
     {
         private CameraType cameraType;
-        Quaternion rotation;
+        private Quaternion rotation;
 
         public CameraType CameraType
         {
@@ -61,24 +61,13 @@ namespace MonoGameWorld.Camera
             LookAt = Vector3.Forward;
             Up = Vector3.UnitY;
             Rotation = Quaternion.Identity;
-            /*Velocity = 1;
-            CurrentVelocity = 0;
-            WheelVelocity = 1;*/
-
             Width = width;
             Height = height;
-
             Fov = fov;
             AspectRatio = (float)width / height;
             ZNear = znear;
             ZFar = zfar;
-
-            /*RotationSpeed = 35f;
-            MouseSensitivity = 0.8f;*/
             CameraType = CameraType.Free;
-
-            //IsLookingBackwards = false;
-
             MovementVelocity = 10.0f;
             RotationVelocity = 50.0f;
 
@@ -91,31 +80,20 @@ namespace MonoGameWorld.Camera
             LookAt = lookAt;
             Up = up;
             Rotation = Quaternion.Identity;
-            /*Velocity = 1;
-            CurrentVelocity = 0;
-            WheelVelocity = 1;*/
-
             Width = width;
             Height = height;
-
             Fov = fov;
             AspectRatio = (float)width / height;
             ZNear = znear;
             ZFar = zfar;
-
-            /*RotationSpeed = 35f;
-            MouseSensitivity = 5.0f;*/
             CameraType = CameraType.Free;
-
-            //IsLookingBackwards = false;
-
             MovementVelocity = 10.0f;
             RotationVelocity = 50.0f;
 
             Initialize();
         }
 
-        public void Initialize()
+        private void Initialize()
         {
             GetAxisFromViewMatrix();
             BuildPerspectiveFov(ZNear, ZFar);
@@ -135,7 +113,7 @@ namespace MonoGameWorld.Camera
 
         public void Update()
         {
-            // check normalization
+            // check rotation quaternion normalization
             if (Mathematics.IsOne((Rotation.X * Rotation.X) + (Rotation.Y * Rotation.Y) + (Rotation.Z * Rotation.Z) + (Rotation.W * Rotation.W)) == false)
             {
                 Rotation = Quaternion.Normalize(Rotation);

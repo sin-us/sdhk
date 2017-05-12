@@ -27,6 +27,16 @@ namespace MonoGameWorld.Inputs.Mouse
         public int DeltaY => deltaY;
         public int WheelDelta => wheelDelta;
 
+        public MouseStatus()
+        {
+            leftButton = new ButtonStatus();
+            middleButton = new ButtonStatus();
+            rightButton = new ButtonStatus();
+            xButton1 = new ButtonStatus();
+            xButton2 = new ButtonStatus();
+            position = new Point();
+        }
+
         public void FromXnaMouseState(MouseState mouseState)
         {
             deltaX = mouseState.X - position.X;

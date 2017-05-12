@@ -64,13 +64,15 @@
   <ItemGroup>
     <Compile Include="Animation\2D\AnimatedSprite.cs" />
     <Compile Include="Camera\Camera.cs" />
+    <Compile Include="Configurations\InputConfigManager.cs" />
+    <Compile Include="Configurations\JsonFileManager.cs" />
+    <Compile Include="Configurations\KeyBinding.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Inputs\Keyboard\KeyboardManager.cs" />
     <Compile Include="Inputs\Keyboard\KeyStatus.cs" />
     <Compile Include="HexGrid\HexGrid.cs" />
     <Compile Include="HexGrid\HexSphere.cs" />
     <Compile Include="Inputs\Mouse\ButtonStatus.cs" />
-    <Compile Include="Inputs\Mouse\ButtonStatusFlags.cs" />
     <Compile Include="Inputs\Mouse\MouseManager.cs" />
     <Compile Include="Inputs\Mouse\MouseStatus.cs" />
     <Compile Include="Particles\2D\Particle2D.cs" />
@@ -84,6 +86,9 @@
     <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.WindowsDX.3.6.0.1625\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />

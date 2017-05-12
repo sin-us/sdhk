@@ -10,9 +10,11 @@ namespace MonoGameWorld.Utilities
     public static class FrameRateCounter
     {
         private static TimeSpan elapsedTime;
+        private static float frameTime;
 
         public static int FrameRate { get; set; }
         public static int FrameCounter { get; set; }
+        public static float FrameTime { get { return frameTime; } }
 
         static FrameRateCounter()
         {
@@ -24,6 +26,8 @@ namespace MonoGameWorld.Utilities
 
         public static void Update(GameTime gameTime)
         {
+            frameTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             elapsedTime += gameTime.ElapsedGameTime;
 
             if (elapsedTime > TimeSpan.FromSeconds(1))

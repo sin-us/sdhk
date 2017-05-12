@@ -1,18 +1,22 @@
 ﻿namespace MonoGameWorld.Inputs.Mouse
 {
-    public struct ButtonStatus
+    public class ButtonStatus
     {
-        private ButtonStatusFlags buttonStateFlags;
+        private bool isDown;
 
+        public bool IsPressed { get; set; }
         public bool IsDown
         {
-            get { return (buttonStateFlags & ButtonStatusFlags.Down) != 0; }
+            get
+            {
+                return isDown;
+            }
+
             set
             {
-                if (value)
+                if (value == true)
                 {
-                    // if first time down - then it is also a Pressed case
-                    if (!IsDown)
+                    if (isDown == false)
                     {
                         IsPressed = true;
                     }
@@ -20,30 +24,13 @@
                     {
                         IsPressed = false;
                     }
-
-                    buttonStateFlags |= ButtonStatusFlags.Down;
                 }
                 else
                 {
                     IsPressed = false;
-                    buttonStateFlags &= ~ButtonStatusFlags.Down;
                 }
-            }
-        }
 
-        public bool IsPressed
-        {
-            get { return (buttonStateFlags & ButtonStatusFlags.Pressed) != 0; }
-            set
-            {
-                if (value)
-                {
-                    buttonStateFlags |= ButtonStatusFlags.Pressed;
-                }
-                else
-                {
-                    buttonStateFlags &= ~ButtonStatusFlags.Pressed;
-                }
+                isDown = value;
             }
         }
     }
