@@ -64,9 +64,10 @@
   <ItemGroup>
     <Compile Include="Animation\2D\AnimatedSprite.cs" />
     <Compile Include="Camera\Camera.cs" />
-    <Compile Include="Configurations\InputConfigManager.cs" />
+    <Compile Include="Configurations\Input\CombinationList.cs" />
+    <Compile Include="Configurations\Input\InputConfigManager.cs" />
     <Compile Include="Configurations\JsonFileManager.cs" />
-    <Compile Include="Configurations\KeyBinding.cs" />
+    <Compile Include="Configurations\Input\KeyBinding.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Inputs\Keyboard\KeyboardManager.cs" />
     <Compile Include="Inputs\Keyboard\KeyStatus.cs" />

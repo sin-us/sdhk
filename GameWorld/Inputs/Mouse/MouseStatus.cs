@@ -5,52 +5,41 @@ namespace MonoGameWorld.Inputs.Mouse
 {
     public class MouseStatus
     {
-        private ButtonStatus leftButton;
-        private ButtonStatus middleButton;
-        private ButtonStatus rightButton;
-        private ButtonStatus xButton1;
-        private ButtonStatus xButton2;
-        private Point position;
-        private int wheelCumulativeValue;
-        private int deltaX;
-        private int deltaY;
-        private int wheelDelta;
-
-        public ButtonStatus LeftButton => leftButton;
-        public ButtonStatus MiddleButton => middleButton;
-        public ButtonStatus RightButton => rightButton;
-        public ButtonStatus XButton1 => xButton1;
-        public ButtonStatus XButton2 => xButton2;
-        public Point Position => position;
-        public int WheelCumulativeValue => wheelCumulativeValue;
-        public int DeltaX => deltaX;
-        public int DeltaY => deltaY;
-        public int WheelDelta => wheelDelta;
+        public ButtonStatus LeftButton { get; private set; }
+        public ButtonStatus MiddleButton { get; private set; }
+        public ButtonStatus RightButton { get; private set; }
+        public ButtonStatus XButton1 { get; private set; }
+        public ButtonStatus XButton2 { get; private set; }
+        public Point Position { get; private set; }
+        public int WheelCumulativeValue { get; private set; }
+        public int DeltaX { get; private set; }
+        public int DeltaY { get; private set; }
+        public int WheelDelta { get; private set; }
 
         public MouseStatus()
         {
-            leftButton = new ButtonStatus();
-            middleButton = new ButtonStatus();
-            rightButton = new ButtonStatus();
-            xButton1 = new ButtonStatus();
-            xButton2 = new ButtonStatus();
-            position = new Point();
+            LeftButton = new ButtonStatus();
+            MiddleButton = new ButtonStatus();
+            RightButton = new ButtonStatus();
+            XButton1 = new ButtonStatus();
+            XButton2 = new ButtonStatus();
+            Position = new Point();
         }
 
         public void FromXnaMouseState(MouseState mouseState)
         {
-            deltaX = mouseState.X - position.X;
-            deltaY = mouseState.Y - position.Y;
-            wheelDelta = mouseState.ScrollWheelValue - wheelCumulativeValue;
+            DeltaX = mouseState.X - Position.X;
+            DeltaY = mouseState.Y - Position.Y;
+            WheelDelta = mouseState.ScrollWheelValue - WheelCumulativeValue;
 
-            position = mouseState.Position;
-            wheelCumulativeValue = mouseState.ScrollWheelValue;
+            Position = mouseState.Position;
+            WheelCumulativeValue = mouseState.ScrollWheelValue;
 
-            leftButton.IsDown = (mouseState.LeftButton == ButtonState.Pressed);
-            middleButton.IsDown = (mouseState.MiddleButton == ButtonState.Pressed);
-            rightButton.IsDown = (mouseState.RightButton == ButtonState.Pressed);
-            xButton1.IsDown = (mouseState.XButton1 == ButtonState.Pressed);
-            xButton2.IsDown = (mouseState.XButton2 == ButtonState.Pressed);
+            LeftButton.IsDown = (mouseState.LeftButton == ButtonState.Pressed);
+            MiddleButton.IsDown = (mouseState.MiddleButton == ButtonState.Pressed);
+            RightButton.IsDown = (mouseState.RightButton == ButtonState.Pressed);
+            XButton1.IsDown = (mouseState.XButton1 == ButtonState.Pressed);
+            XButton2.IsDown = (mouseState.XButton2 == ButtonState.Pressed);
         }
     }
 }

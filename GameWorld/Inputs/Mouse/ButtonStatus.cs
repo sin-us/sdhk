@@ -14,16 +14,9 @@
 
             set
             {
-                if (value == true)
+                if (value)
                 {
-                    if (isDown == false)
-                    {
-                        IsPressed = true;
-                    }
-                    else
-                    {
-                        IsPressed = false;
-                    }
+                    IsPressed = !isDown;
                 }
                 else
                 {

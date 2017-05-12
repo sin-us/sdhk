@@ -6,11 +6,11 @@ namespace MonoGameWorld.Camera
 {
     public enum CameraType
     {
-        Free = 0,
-        FirstPerson = 1,
-        ThirdPersonFree = 2,
-        ThirdPersonFreeAlt = 3,
-        ThirdPersonLocked = 4
+        Free,
+        FirstPerson,
+        ThirdPersonFree,
+        ThirdPersonFreeAlt,
+        ThirdPersonLocked,
     }
 
     class Camera
@@ -114,7 +114,7 @@ namespace MonoGameWorld.Camera
         public void Update()
         {
             // check rotation quaternion normalization
-            if (Mathematics.IsOne((Rotation.X * Rotation.X) + (Rotation.Y * Rotation.Y) + (Rotation.Z * Rotation.Z) + (Rotation.W * Rotation.W)) == false)
+            if (!Mathematics.IsOne((Rotation.X * Rotation.X) + (Rotation.Y * Rotation.Y) + (Rotation.Z * Rotation.Z) + (Rotation.W * Rotation.W)))
             {
                 Rotation = Quaternion.Normalize(Rotation);
             }

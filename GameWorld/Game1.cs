@@ -8,7 +8,7 @@ using MonoGameWorld.HexGrid;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
-using MonoGameWorld.Configurations;
+using MonoGameWorld.Configurations.Input;
 
 namespace GameWorld
 {
@@ -78,7 +78,7 @@ namespace GameWorld
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            InputConfigManager.DefaultInitialization();
+            InputConfigManager.DefaultInitialize();
 
             base.Initialize();
         }
@@ -129,13 +129,13 @@ namespace GameWorld
             {
                 this.Exit();
             }
-            if (InputConfigManager.IsActionKeysPressed(ActionType.Exit))
+            if (InputConfigManager.IsKeyCombinationPressed(ActionType.Exit))
             {
                 this.Exit();
             }
 
             // Switch to/from wireframe mode
-            if (InputConfigManager.IsActionKeysPressed(ActionType.ToggleWireframe))
+            if (InputConfigManager.IsKeyCombinationPressed(ActionType.ToggleWireframe))
             {
                 isWireFrame = !isWireFrame;
             }
@@ -152,7 +152,7 @@ namespace GameWorld
             GraphicsDevice.RasterizerState = rasterizerState;
 
             // Framerate handling
-            if (InputConfigManager.IsActionKeysPressed(ActionType.ToggleFixedFramerate))
+            if (InputConfigManager.IsKeyCombinationPressed(ActionType.ToggleFixedFramerate))
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 this.IsFixedTimeStep = !this.IsFixedTimeStep;
@@ -160,58 +160,58 @@ namespace GameWorld
             }
 
             // Fullscreen handling
-            if (InputConfigManager.IsActionKeysPressed(ActionType.ToggleFullscreen))
+            if (InputConfigManager.IsKeyCombinationPressed(ActionType.ToggleFullscreen))
             {
                 graphics.IsFullScreen = !graphics.IsFullScreen;
                 graphics.ApplyChanges();
             }
 
             // Camera handling
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraMoveForward))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveForward))
             {
                 camera.MoveRelativeZ(-camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraMoveBackward))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveBackward))
             {
                 camera.MoveRelativeZ(camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraMoveLeft))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveLeft))
             {
                 camera.MoveRelativeX(-camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraMoveRight))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveRight))
             {
                 camera.MoveRelativeX(camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraMoveDown))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveDown))
             {
                 camera.MoveRelativeY(-camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraMoveUp))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveUp))
             {
                 camera.MoveRelativeY(camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraTiltLeft))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraTiltLeft))
             {
                 camera.RotateRelativeZ(-camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraTiltRight))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraTiltRight))
             {
                 camera.RotateRelativeZ(camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraRotateUp))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateUp))
             {
                 camera.RotateRelativeX(-camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraRotateDown))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateDown))
             {
                 camera.RotateRelativeX(camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraRotateLeft))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateLeft))
             {
                 camera.RotateRelativeY(-camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsActionKeysDown(ActionType.CameraRotateRight))
+            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateRight))
             {
                 camera.RotateRelativeY(camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
@@ -238,13 +238,13 @@ namespace GameWorld
 
             string hintString = "";
 
-            foreach (var descriptionToActionPair in InputConfigManager.DescriptionToActionBinding)
+            foreach (var combination in InputConfigManager.Combinations.Combinations)
             {
-                hintString += descriptionToActionPair.Key + ": ";
+                hintString += combination.Description + ": ";
 
-                foreach (var keyBinding in InputConfigManager.ActionToKeyBindings[descriptionToActionPair.Value])
+                foreach (var binding in combination.Binding)
                 {
-                    hintString += keyBinding.Key.ToString() + " ";
+                    hintString += binding.Key.ToString() + " ";
                 }
 
                 hintString += "\n";
