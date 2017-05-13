@@ -29,17 +29,24 @@ namespace MonoGameWorld.Configurations.Input
 
     public enum ControllerType
     {
+        None,
         Keyboard,
         Mouse,
         Pad,
     }
 
-    public class KeyBinding
+    public class KeyBindingInfo
     {
         public ControllerType Type { get; set; }
         public object Key { get; set; }
 
-        public KeyBinding(ControllerType type, object key)
+        public KeyBindingInfo()
+        {
+            Type = ControllerType.None;
+            Key = null;
+        }
+
+        public KeyBindingInfo(ControllerType type, object key)
         {
             Type = type;
             Key = key;

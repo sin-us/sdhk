@@ -129,13 +129,13 @@ namespace GameWorld
             {
                 this.Exit();
             }
-            if (InputConfigManager.IsKeyCombinationPressed(ActionType.Exit))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.Exit))
             {
                 this.Exit();
             }
 
             // Switch to/from wireframe mode
-            if (InputConfigManager.IsKeyCombinationPressed(ActionType.ToggleWireframe))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleWireframe))
             {
                 isWireFrame = !isWireFrame;
             }
@@ -152,7 +152,7 @@ namespace GameWorld
             GraphicsDevice.RasterizerState = rasterizerState;
 
             // Framerate handling
-            if (InputConfigManager.IsKeyCombinationPressed(ActionType.ToggleFixedFramerate))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleFixedFramerate))
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 this.IsFixedTimeStep = !this.IsFixedTimeStep;
@@ -160,58 +160,58 @@ namespace GameWorld
             }
 
             // Fullscreen handling
-            if (InputConfigManager.IsKeyCombinationPressed(ActionType.ToggleFullscreen))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleFullscreen))
             {
                 graphics.IsFullScreen = !graphics.IsFullScreen;
                 graphics.ApplyChanges();
             }
 
             // Camera handling
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveForward))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
             {
                 camera.MoveRelativeZ(-camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveBackward))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveBackward))
             {
                 camera.MoveRelativeZ(camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveLeft))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveLeft))
             {
                 camera.MoveRelativeX(-camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveRight))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveRight))
             {
                 camera.MoveRelativeX(camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveDown))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveDown))
             {
                 camera.MoveRelativeY(-camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraMoveUp))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveUp))
             {
                 camera.MoveRelativeY(camera.MovementVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraTiltLeft))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraTiltLeft))
             {
                 camera.RotateRelativeZ(-camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraTiltRight))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraTiltRight))
             {
                 camera.RotateRelativeZ(camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateUp))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateUp))
             {
                 camera.RotateRelativeX(-camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateDown))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateDown))
             {
                 camera.RotateRelativeX(camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateLeft))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateLeft))
             {
                 camera.RotateRelativeY(-camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
-            if (InputConfigManager.IsKeyCombinationDown(ActionType.CameraRotateRight))
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateRight))
             {
                 camera.RotateRelativeY(camera.RotationVelocity * FrameRateCounter.FrameTime);
             }
@@ -238,13 +238,13 @@ namespace GameWorld
 
             string hintString = "";
 
-            foreach (var combination in InputConfigManager.Combinations.Combinations)
+            foreach (var binding in InputConfigManager.Bindings.Bindings)
             {
-                hintString += combination.Description + ": ";
+                hintString += binding.Description + ": ";
 
-                foreach (var binding in combination.Binding)
+                if (binding.KeyBindingInfo.Key != null)
                 {
-                    hintString += binding.Key.ToString() + " ";
+                    hintString += binding.KeyBindingInfo.Key.ToString();
                 }
 
                 hintString += "\n";
