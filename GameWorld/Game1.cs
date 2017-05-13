@@ -77,11 +77,10 @@ namespace GameWorld
         {
             effect = new BasicEffect(graphics.GraphicsDevice);
             sphereEffect = new BasicEffect(graphics.GraphicsDevice);
+            sphereEffect.VertexColorEnabled = true;
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
 
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
@@ -89,7 +88,7 @@ namespace GameWorld
             model = Content.Load<Model>("lava_cube");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-            _hexSphere = new HexSphere(5);
+            _hexSphere = new HexSphere(6);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
@@ -238,6 +237,12 @@ namespace GameWorld
                                                 "R: toggle fixed framerate\n" +
                                                 "T: toggle fullscreen\n" +
                                                 "Esc: close app\n", new Vector2(10, 30), Color.White);
+
+
+            // Hex Sphere
+            sphereEffect.World = modelWorld;
+            sphereEffect.View = camera.ViewMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;
             _hexSphere.Draw(graphics, sphereEffect);
 
 
