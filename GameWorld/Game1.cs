@@ -4,6 +4,7 @@ using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using MonoGameWorld.HexGrid;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
@@ -30,6 +31,14 @@ namespace GameWorld
         private Model model;
         private Matrix modelWorld;
         private Vector3 modelPosition;
+        private float modelAngle;
+
+        private AudioEngine audioEngine;
+        private WaveBank waveBank;
+        private SoundBank soundBank;
+        private Cue cue;
+        private AudioEmitter emitter;
+        private AudioListener listener;
 
         private ControlPanelListener _controlPanelListener;
         private string _customText = string.Empty;
@@ -74,11 +83,17 @@ namespace GameWorld
             sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
 
             modelPosition = new Vector3(0, 0, 0);
+            modelAngle = 0.0f;
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
+
+            emitter = new AudioEmitter();
+            listener = new AudioListener();
+
+            listener.Position = Vector3.Zero;
 
             base.Initialize();
         }
@@ -100,6 +115,8 @@ namespace GameWorld
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
+
+            LoadAudioContent();
         }
 
         /// <summary>
@@ -220,7 +237,13 @@ namespace GameWorld
             sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
             sphereEffect.View = camera.ViewMatrix;
             sphereEffect.Projection = camera.ProjectionMatrix;
-            modelWorld = Matrix.CreateTranslation(modelPosition - camera.Offset);
+            modelAngle += 0.01f;
+            modelWorld = Matrix.CreateRotationX(modelAngle) * Matrix.CreateRotationY(modelAngle) * Matrix.CreateTranslation(modelPosition - camera.Offset);
+
+            listener.Position = Vector3.Zero;
+            emitter.Position = (modelPosition - camera.Offset);
+            cue.Apply3D(listener, emitter);
+            audioEngine.Update();
 
             base.Update(gameTime);
         }
@@ -231,7 +254,7 @@ namespace GameWorld
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkGray);
+            GraphicsDevice.Clear(Color.Black);
 
             // Draw any meshes before the text in order for it to be on the top
             DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
@@ -269,13 +292,13 @@ namespace GameWorld
                 {
                     effect.LightingEnabled = true;
                     effect.PreferPerPixelLighting = true;
-                    effect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
+                    effect.AmbientLightColor = new Vector3(0.1f, 0.0f, 0.0f);
                     effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
-                    effect.DirectionalLight0.DiffuseColor = new Vector3(0.7f, 0.7f, 0.7f);
+                    effect.DirectionalLight0.DiffuseColor = new Vector3(1.0f, 0.0f, 0.0f);
                     effect.FogEnabled = true;
-                    effect.FogColor = Color.DarkGray.ToVector3();
+                    effect.FogColor = Color.Black.ToVector3();
                     effect.FogStart = 8.0f;
-                    effect.FogEnd = 50.0f;
+                    effect.FogEnd = 80.0f;
                     effect.World = world;
                     effect.View = view;
                     effect.Projection = projection;
@@ -283,6 +306,17 @@ namespace GameWorld
 
                 mesh.Draw();
             }
+        }
+
+        private void LoadAudioContent()
+        {
+            audioEngine = new AudioEngine("Content/Sound/Win/SDHKAudio.xgs");
+            waveBank = new WaveBank(audioEngine, "Content/Sound/Win/Wave Bank.xwb");
+            soundBank = new SoundBank(audioEngine, "Content/Sound/Win/Sound Bank.xsb");
+            soundBank.PlayCue("Space");
+            cue = soundBank.GetCue("Dark");
+            cue.Apply3D(listener, emitter);
+            cue.Play();
         }
     }
 }
