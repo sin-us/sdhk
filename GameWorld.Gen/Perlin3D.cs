@@ -146,24 +146,5 @@ namespace GameWorld.Gen
             }
             return res;
         }
-
-        public double getMultioctave3DNoiseValueFromSphere(int x, int y, int z, uint startOctaveNumber, uint octaveCount, uint radius)
-        {
-            // convert to sphere coordinates
-            double d = FastPow(x, 2) + FastPow(y, 2) + FastPow(z, 2);
-
-            d = Math.Sqrt(d);
-
-            double zd = z / d;
-
-            double theta = Math.Acos(zd);
-            double phi = Math.Atan2(y, x);
-
-            double s_x = radius * Math.Sin(theta) * Math.Cos(phi);
-            double s_y = radius * Math.Sin(theta) * Math.Sin(phi);
-            double s_z = radius * Math.Cos(theta);
-
-            return getMultioctave3DNoiseValue(s_x, s_y, s_z, startOctaveNumber, octaveCount);
-        }
     }
 }
