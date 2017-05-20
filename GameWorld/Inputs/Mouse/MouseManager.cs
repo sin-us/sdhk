@@ -8,16 +8,14 @@ namespace MonoGameWorld.Inputs.Mouse
 {
     public static class MouseManager
     {
-        private static Cursor customCursor;
-
         public static MouseStatus MouseStatus { get; }
-        public static Cursor CustomCursor => customCursor;
+        public static Cursor CustomCursor { get; private set; }
         public static bool IsPointerVisible { get; set; }
         
         static MouseManager()
         {
             MouseStatus = new MouseStatus();
-            customCursor = null;
+            CustomCursor = null;
             IsPointerVisible = false;
         }
 
@@ -43,7 +41,7 @@ namespace MonoGameWorld.Inputs.Mouse
             // Note: force the cursor to own the handle so it gets released properly
             var fi = typeof(Cursor).GetField("ownHandle", BindingFlags.NonPublic | BindingFlags.Instance);
             fi.SetValue(cursor, true);
-            customCursor = cursor;
+            CustomCursor = cursor;
         }
         #endregion
     }

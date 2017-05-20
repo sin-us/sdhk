@@ -31,11 +31,11 @@ namespace MonoGameWorld.Particles2D
             random = new Random();
 
             ParticlesPerEmition = 10;
-            VelocityMultipliers = new Vector2(1.0f, 1.0f); //0.7
-            AngularVelocityMultiplier = 1.0f; //0.1
+            VelocityMultipliers = new Vector2(1.0f, 1.0f);
+            AngularVelocityMultiplier = 1.0f;
             ColorPicker = null;
             Color = Color.White;
-            SizeMultiplier = 1.0f; //0.5
+            SizeMultiplier = 1.0f;
             SizeVelocityMultiplier = 0.0f;
             TimeToLiveBase = 20;
             TimeToLiveRandomRange = 40;

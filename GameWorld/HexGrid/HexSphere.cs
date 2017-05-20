@@ -13,7 +13,8 @@ namespace MonoGameWorld.HexGrid
         private double _minNoise = double.MaxValue;
         private double _maxNoise = double.MinValue;
 
-        private const int K = 15;
+        private const int K = 50;
+        private const int Radius = 15;
 
         public HexSphere(int size)
         {
@@ -33,21 +34,11 @@ namespace MonoGameWorld.HexGrid
 
         public void Draw(GraphicsDeviceManager graphics, BasicEffect effect)
         {
-            // The assignment of effect.View and effect.Projection
-            // are nearly identical to the code in the Model drawing code.
-            var cameraPosition = new Vector3(0, 40, 20);
-            var cameraLookAtVector = Vector3.Zero;
-            var cameraUpVector = Vector3.UnitZ;
-
-            effect.View = Matrix.CreateLookAt(cameraPosition, cameraLookAtVector, cameraUpVector);
-
-            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
-
             VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[12];
 
             foreach (var t in _sphereGrid.Tiles)
             {
-                var val = _perlin.getMultioctave3DNoiseValue(t.V.X * 50, t.V.Y * 50, t.V.Z * 50, 1, 6);
+                var val = _perlin.getMultioctave3DNoiseValue(t.V.X * K, t.V.Y * K, t.V.Z * K, 1, 7);
                 val = (val - _minNoise) / (_maxNoise - _minNoise);
 
                 Color color;
@@ -74,9 +65,9 @@ namespace MonoGameWorld.HexGrid
 
                 for (int j = 0; j < t.Corners.Length - 2; ++j)
                 {
-                    vertices[j * 3].Position = new Vector3((float)t.Corners[0].V.X * K, (float)t.Corners[0].V.Y * K, (float)t.Corners[0].V.Z * K);
-                    vertices[j * 3 + 1].Position = new Vector3((float)t.Corners[j + 1].V.X * K, (float)t.Corners[j + 1].V.Y * K, (float)t.Corners[j + 1].V.Z * K);
-                    vertices[j * 3 + 2].Position = new Vector3((float)t.Corners[j + 2].V.X * K, (float)t.Corners[j + 2].V.Y * K, (float)t.Corners[j + 2].V.Z * K);
+                    vertices[j * 3].Position = new Vector3((float)t.Corners[0].V.X * Radius, (float)t.Corners[0].V.Y * Radius, (float)t.Corners[0].V.Z * Radius);
+                    vertices[j * 3 + 1].Position = new Vector3((float)t.Corners[j + 1].V.X * Radius, (float)t.Corners[j + 1].V.Y * Radius, (float)t.Corners[j + 1].V.Z * Radius);
+                    vertices[j * 3 + 2].Position = new Vector3((float)t.Corners[j + 2].V.X * Radius, (float)t.Corners[j + 2].V.Y * Radius, (float)t.Corners[j + 2].V.Z * Radius);
 
                     vertices[j * 3].Color = color;
                     vertices[j * 3 + 1].Color = color;

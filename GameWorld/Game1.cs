@@ -1,4 +1,3 @@
-using HexLib;
 using MonoGameWorld.Utilities;
 using MonoGameWorld.Inputs.Keyboard;
 using MonoGameWorld.Inputs.Mouse;
@@ -6,10 +5,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameWorld.HexGrid;
-using System;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
+using MonoGameWorld.Configurations.Input;
 
 namespace GameWorld
 {
@@ -22,13 +21,14 @@ namespace GameWorld
         private SpriteBatch spriteBatch;
         private Camera camera;
         private SpriteFont generalFont;
-        private Model model;
-        private Matrix modelWorld;
-        private BasicEffect effect;
         private BasicEffect sphereEffect;
+        private Vector3 spherePosition;
         private HexGrid _hexGrid;
         private HexSphere _hexSphere;
         private bool isWireFrame;
+
+        private Model model;
+        private Matrix modelWorld;
         private Vector3 modelPosition;
 
         private ControlPanelListener _controlPanelListener;
@@ -36,10 +36,12 @@ namespace GameWorld
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
-            graphics.SynchronizeWithVerticalRetrace = true;
+            graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 1280,
+                PreferredBackBufferHeight = 720,
+                SynchronizeWithVerticalRetrace = true
+            };
             this.IsFixedTimeStep = true;
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
@@ -55,7 +57,6 @@ namespace GameWorld
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            modelPosition = new Vector3(0, 2.0f, 0);
             camera = new Camera(new Vector3(0, 0, 10.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
 
             MouseManager.IsPointerVisible = true;
@@ -66,6 +67,19 @@ namespace GameWorld
 
             isWireFrame = false;
 
+            spherePosition = new Vector3(0, 0, 0);
+            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
+            sphereEffect.View = camera.ViewMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;
+            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+
+            modelPosition = new Vector3(0, 0, 0);
+
+            // Create a new SpriteBatch, which can be used to draw textures.
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            InputConfigManager.DefaultInitialize();
+
             base.Initialize();
         }
 
@@ -75,17 +89,10 @@ namespace GameWorld
         /// </summary>
         protected override void LoadContent()
         {
-            effect = new BasicEffect(graphics.GraphicsDevice);
-            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
             sphereEffect.VertexColorEnabled = true;
-
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            model = Content.Load<Model>("lava_cube");
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
-
-            model = Content.Load<Model>("lava_cube");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
             _hexSphere = new HexSphere(6);
@@ -121,20 +128,20 @@ namespace GameWorld
             {
                 this.Exit();
             }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.Exit))
             {
                 this.Exit();
             }
 
             // Switch to/from wireframe mode
-            if (KeyboardManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.P))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleWireframe))
             {
                 isWireFrame = !isWireFrame;
             }
 
             RasterizerState rasterizerState = new RasterizerState();
             if (isWireFrame == true)
-            {                
+            {
                 rasterizerState.FillMode = FillMode.WireFrame;
             }
             else
@@ -144,7 +151,7 @@ namespace GameWorld
             GraphicsDevice.RasterizerState = rasterizerState;
 
             // Framerate handling
-            if (KeyboardManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.R))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleFixedFramerate))
             {
                 graphics.SynchronizeWithVerticalRetrace = !graphics.SynchronizeWithVerticalRetrace;
                 this.IsFixedTimeStep = !this.IsFixedTimeStep;
@@ -152,66 +159,76 @@ namespace GameWorld
             }
 
             // Fullscreen handling
-            if (KeyboardManager.IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.T))
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleFullscreen))
             {
                 graphics.IsFullScreen = !graphics.IsFullScreen;
                 graphics.ApplyChanges();
             }
 
-            // Camera handling
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.W))
-            {
-                camera.MoveRelativeZ(-camera.MovementVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.S))
-            {
-                camera.MoveRelativeZ(camera.MovementVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.A))
-            {
-                camera.MoveRelativeX(-camera.MovementVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.D))
-            {
-                camera.MoveRelativeX(camera.MovementVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftControl))
-            {
-                camera.MoveRelativeY(-camera.MovementVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Space))
-            {
-                camera.MoveRelativeY(camera.MovementVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Q))
-            {
-                camera.RotateRelativeZ(-camera.RotationVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.E))
-            {
-                camera.RotateRelativeZ(camera.RotationVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Up))
-            {
-                camera.RotateRelativeX(-camera.RotationVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Down))
-            {
-                camera.RotateRelativeX(camera.RotationVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Left))
-            {
-                camera.RotateRelativeY(-camera.RotationVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
-            if (KeyboardManager.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Right))
-            {
-                camera.RotateRelativeY(camera.RotationVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            }
+            HandleCameraInput();
 
-            camera.Update();
+            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+            sphereEffect.View = camera.ViewMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;
+
             modelWorld = Matrix.CreateTranslation(modelPosition - camera.Offset);
 
             base.Update(gameTime);
+        }
+
+        private void HandleCameraInput()
+        {
+            // Camera handling
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
+            {
+                camera.MoveRelativeZ(-camera.MovementVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveBackward))
+            {
+                camera.MoveRelativeZ(camera.MovementVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveLeft))
+            {
+                camera.MoveRelativeX(-camera.MovementVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveRight))
+            {
+                camera.MoveRelativeX(camera.MovementVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveDown))
+            {
+                camera.MoveRelativeY(-camera.MovementVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveUp))
+            {
+                camera.MoveRelativeY(camera.MovementVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraTiltLeft))
+            {
+                camera.RotateRelativeZ(-camera.RotationVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraTiltRight))
+            {
+                camera.RotateRelativeZ(camera.RotationVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateUp))
+            {
+                camera.RotateRelativeX(-camera.RotationVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateDown))
+            {
+                camera.RotateRelativeX(camera.RotationVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateLeft))
+            {
+                camera.RotateRelativeY(-camera.RotationVelocity * FrameRateCounter.FrameTime);
+            }
+            if (InputConfigManager.IsKeyBindingDown(ActionType.CameraRotateRight))
+            {
+                camera.RotateRelativeY(camera.RotationVelocity * FrameRateCounter.FrameTime);
+            }
+
+            camera.Update();
         }
 
         /// <summary>
@@ -222,31 +239,37 @@ namespace GameWorld
         {
             GraphicsDevice.Clear(Color.DarkGray);
 
+            // Draw any meshes before the text in order for it to be on the top
             DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
+
+            _hexSphere.Draw(graphics, sphereEffect);
+
+            string hintString = "";
+
+            foreach (var binding in InputConfigManager.Bindings.Bindings)
+            {
+                hintString += binding.Description + ": ";
+
+                if (binding.KeyBindingInfo.Key != null)
+                {
+                    hintString += binding.KeyBindingInfo.Key.ToString();
+                }
+
+                hintString += "\n";
+            }
+
             // Show FPS
             ++FrameRateCounter.FrameCounter;
-            // Draw any meshes before the text in order for it to be on the top
-
             spriteBatch.Begin();
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
-            spriteBatch.DrawString(generalFont, "W/A/S/D: forward/left/backwards/right\n" + 
-                                                "Ctrl/Space: down/up\n" +
-                                                "Q/E: tilt left/right\n" +
-                                                "Arrows: look along X/Y axis\n" +
-                                                "P: toggle wireframe mode\n" +
-                                                "R: toggle fixed framerate\n" +
-                                                "T: toggle fullscreen\n" +
-                                                "Esc: close app\n", new Vector2(10, 30), Color.White);
+            spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 30), Color.White);
+            spriteBatch.DrawString(generalFont, _customText, new Vector2(50, 10), Color.White);
 
 
             // Hex Sphere
             sphereEffect.World = modelWorld;
             sphereEffect.View = camera.ViewMatrix;
             sphereEffect.Projection = camera.ProjectionMatrix;
-            _hexSphere.Draw(graphics, sphereEffect);
-
-
-            spriteBatch.DrawString(generalFont, _customText, new Vector2(10, 190), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
