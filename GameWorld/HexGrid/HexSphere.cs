@@ -15,21 +15,6 @@ namespace MonoGameWorld.HexGrid
 
         public void Draw(GraphicsDeviceManager graphics, BasicEffect effect)
         {
-            // The assignment of effect.View and effect.Projection
-            // are nearly identical to the code in the Model drawing code.
-            var cameraPosition = new Vector3(0, 40, 20);
-            var cameraLookAtVector = Vector3.Zero;
-            var cameraUpVector = Vector3.UnitZ;
-
-            effect.View = Matrix.CreateLookAt(cameraPosition, cameraLookAtVector, cameraUpVector);
-
-            float aspectRatio = graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight;
-            float fieldOfView = Microsoft.Xna.Framework.MathHelper.PiOver4;
-            float nearClipPlane = 1;
-            float farClipPlane = 200;
-
-            effect.Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearClipPlane, farClipPlane);
-
             VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[12];
 
             foreach (var t in _sphereGrid.Tiles)

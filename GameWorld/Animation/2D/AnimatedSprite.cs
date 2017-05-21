@@ -40,9 +40,9 @@ namespace GameWorld.Animation2D
 
             set
             {
-                if ((value != animationName) || (IsRestartAnimation == true))
+                if ((value != animationName) || (IsRestartAnimation))
                 {
-                    if (animationBindings.TryGetValue(value, out frameList) == true)
+                    if (animationBindings.TryGetValue(value, out frameList))
                     {
                         totalFrames = frameList.Count;
                         currentFrame = 0;
@@ -62,7 +62,7 @@ namespace GameWorld.Animation2D
             totalFrames = 0;
             frameWidth = texture.Width / columns;
             frameHeight = texture.Height / rows;
-            animationName = "";
+            animationName = string.Empty;
             frameList = new List<FramePosition>();
             this.animationBindings = animationBindings;
 
