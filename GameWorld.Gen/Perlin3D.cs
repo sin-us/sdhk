@@ -5,8 +5,24 @@ using VectorD = MathNet.Numerics.LinearAlgebra.Double.DenseVector;
 
 namespace GameWorld.Gen
 {
+    /// <summary>
+    /// Perlin3D implementation with static singleton. Static methods are not thread safe
+    /// </summary>
     public class Perlin3D
     {
+        private static readonly object _syncRoot = new object();
+        private static Perlin3D _instance = new Perlin3D();
+
+        public static Perlin3D Instance
+        {
+            get { return _instance; }
+        }
+
+        public static void ReinitializeWithSeed(int seed)
+        {
+            _instance = new Perlin3D(seed);
+        }
+
         private const int permutationTableSize = 1024;
 
         //permutation table
