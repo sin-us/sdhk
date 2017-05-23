@@ -95,7 +95,7 @@ namespace GameWorld
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-            _hexSphere = new HexSphere(6);
+            _hexSphere = new HexSphere(5);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
@@ -242,7 +242,11 @@ namespace GameWorld
             // Draw any meshes before the text in order for it to be on the top
             DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
 
-            _hexSphere.Draw(graphics, sphereEffect);
+            // Hex Sphere
+            sphereEffect.World = modelWorld;
+            sphereEffect.View = camera.ViewMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;
+            _hexSphere.Draw(graphics, sphereEffect, spriteBatch, generalFont);
 
             string hintString = "";
 
@@ -264,12 +268,6 @@ namespace GameWorld
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
             spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 30), Color.White);
             spriteBatch.DrawString(generalFont, _customText, new Vector2(50, 10), Color.White);
-
-
-            // Hex Sphere
-            sphereEffect.World = modelWorld;
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
             spriteBatch.End();
 
             base.Draw(gameTime);
