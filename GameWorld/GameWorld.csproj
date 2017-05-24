@@ -63,6 +63,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Animation\2D\AnimatedSprite.cs" />
+    <Compile Include="Audio\AudioManager.cs" />
+    <Compile Include="Audio\CueData.cs" />
     <Compile Include="Camera\Camera.cs" />
     <Compile Include="Configurations\Input\BindingList.cs" />
     <Compile Include="Configurations\Input\InputConfigManager.cs" />

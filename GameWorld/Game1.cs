@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
 using MonoGameWorld.Configurations.Input;
+using MonoGameWorld.Audio;
 
 namespace GameWorld
 {
@@ -33,12 +34,7 @@ namespace GameWorld
         private Vector3 modelPosition;
         private float modelAngle;
 
-        private AudioEngine audioEngine;
-        private WaveBank waveBank;
-        private SoundBank soundBank;
-        private Cue cue;
-        private AudioEmitter emitter;
-        private AudioListener listener;
+        private AudioManager audioManager;
 
         private ControlPanelListener _controlPanelListener;
         private string _customText = string.Empty;
@@ -90,10 +86,7 @@ namespace GameWorld
 
             InputConfigManager.DefaultInitialize();
 
-            emitter = new AudioEmitter();
-            listener = new AudioListener();
-
-            listener.Position = Vector3.Zero;
+            audioManager = new AudioManager("Content/Sound/Win/SDHKAudio.xgs", "Content/Sound/Win/Wave Bank.xwb", "Content/Sound/Win/Sound Bank.xsb");
 
             base.Initialize();
         }
@@ -116,7 +109,10 @@ namespace GameWorld
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
 
-            LoadAudioContent();
+            audioManager.AddCue("AmbientSpace", "Space", false);
+            audioManager.AddCue("SithHolocron", "Dark", true);
+            audioManager.CueDictionary["AmbientSpace"].Cue.Play();
+            audioManager.CueDictionary["SithHolocron"].Cue.Play();
         }
 
         /// <summary>
@@ -240,10 +236,26 @@ namespace GameWorld
             modelAngle += 0.01f;
             modelWorld = Matrix.CreateRotationX(modelAngle) * Matrix.CreateRotationY(modelAngle) * Matrix.CreateTranslation(modelPosition - camera.Offset);
 
-            listener.Position = Vector3.Zero;
-            emitter.Position = (modelPosition - camera.Offset);
-            cue.Apply3D(listener, emitter);
-            audioEngine.Update();
+
+            audioManager.Listener.Position = Vector3.Zero;
+            audioManager.Listener.Forward = camera.LookAt;
+            audioManager.Listener.Up = camera.Up;
+            if (camera.IsMoving)
+            {
+                audioManager.Listener.Velocity = (camera.MovementVelocity * camera.LookAt);
+            }
+            else
+            {
+                audioManager.Listener.Velocity = Vector3.Zero;
+            }
+
+            audioManager.CueDictionary["SithHolocron"].Emitter.Position = (modelPosition - camera.Offset);
+            audioManager.CueDictionary["SithHolocron"].Emitter.Up = new Vector3(0, 1, 0);
+            audioManager.CueDictionary["SithHolocron"].Emitter.Forward = new Vector3(0, 0, 1);
+            audioManager.CueDictionary["SithHolocron"].Emitter.Velocity = Vector3.Zero;
+            audioManager.CueDictionary["SithHolocron"].Emitter.DopplerScale = 1.0f;
+
+            audioManager.Update();
 
             base.Update(gameTime);
         }
@@ -306,17 +318,6 @@ namespace GameWorld
 
                 mesh.Draw();
             }
-        }
-
-        private void LoadAudioContent()
-        {
-            audioEngine = new AudioEngine("Content/Sound/Win/SDHKAudio.xgs");
-            waveBank = new WaveBank(audioEngine, "Content/Sound/Win/Wave Bank.xwb");
-            soundBank = new SoundBank(audioEngine, "Content/Sound/Win/Sound Bank.xsb");
-            soundBank.PlayCue("Space");
-            cue = soundBank.GetCue("Dark");
-            cue.Apply3D(listener, emitter);
-            cue.Play();
         }
     }
 }
