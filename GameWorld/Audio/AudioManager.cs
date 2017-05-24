@@ -41,11 +41,7 @@ namespace MonoGameWorld.Audio
         {
             if (!CueDictionary.ContainsKey(cueName))
             {
-                CueData cueData = new CueData(is3DEmitter)
-                {
-                    Cue = SoundBank.GetCue(soundName)
-                };
-                cueData.Update(Listener);
+                CueData cueData = new CueData(SoundBank, soundName, Listener, is3DEmitter);
 
                 CueDictionary.Add(cueName, cueData);
                 return true;
