@@ -268,6 +268,8 @@ namespace GameWorld
         {
             GraphicsDevice.Clear(Color.Black);
 
+            GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
+
             // Draw any meshes before the text in order for it to be on the top
             DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
 

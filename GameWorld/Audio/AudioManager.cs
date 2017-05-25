@@ -12,9 +12,9 @@ namespace MonoGameWorld.Audio
         public AudioListener Listener { get; set; }
         public Dictionary<String, CueData> CueDictionary { get; set; }
 
-        public AudioManager(String projectPath, String waveBankPath, String soundBankPath)
+        public AudioManager(String globalSettingsPath, String waveBankPath, String soundBankPath)
         {
-            SetAudioEngineByPath(projectPath);
+            SetAudioEngineByPath(globalSettingsPath);
             SetWaveBankByPath(waveBankPath);
             SetSoundBankByPath(soundBankPath);
 
@@ -22,9 +22,9 @@ namespace MonoGameWorld.Audio
             CueDictionary = new Dictionary<string, CueData>();
         }
 
-        public void SetAudioEngineByPath(String projectPath)
+        public void SetAudioEngineByPath(String globalSettingsPath)
         {
-            AudioEngine = new AudioEngine(projectPath);
+            AudioEngine = new AudioEngine(globalSettingsPath);
         }
 
         public void SetWaveBankByPath(String waveBankPath)
