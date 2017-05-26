@@ -1,28 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using VectorD = MathNet.Numerics.LinearAlgebra.Double.DenseVector;
 
-namespace HexLib.HexSphereGenerator
+namespace GameWorld.Gen.HexSphereGenerator
 {
-    public class Grid
+    internal class Grid<TTile, TCorner>
+        where TTile : HexSphereTile, new()
+        where TCorner : HexSphereTileCorner, new()
     {
         public int Size { get; }
-        public List<Tile> Tiles { get; } = new List<Tile>();
-        public List<Corner> Corners { get; } = new List<Corner>();
-        public List<Edge> Edges { get; } = new List<Edge>();
+        public TTile[] Tiles { get; }
+        public TCorner[] Corners { get; }
+        public Edge[] Edges { get; }
 
         public Grid(int size)
         {
             Size = size;
 
-            for (int i = 0; i < GetTileCount(size); i++)
-                Tiles.Add(new Tile(i, i < 12 ? 5 : 6));
+            Tiles = new TTile[GetTileCount(size)];
+            Corners = new TCorner[GetCornerCount(size)];
+            Edges = new Edge[GetEdgeCount(size)];
 
-            for (int i = 0; i < GetCornerCount(size); i++)
-                Corners.Add(new Corner(i));
+            for (int i = 0; i < Tiles.Length; i++)
+            {
+                Tiles[i] = new TTile();
+                Tiles[i].Initialize(i, i < 12 ? 5 : 6);
+            }
 
-            for (int i = 0; i < GetEdgeCount(size); i++)
-                Edges.Add(new Edge(i));
+            for (int i = 0; i < Corners.Length; i++)
+            {
+                Corners[i] = new TCorner();
+                Corners[i].Id = i;
+            }
+
+            for (int i = 0; i < Edges.Length; i++)
+                Edges[i] = new Edge(i);
         }
 
         private static int GetTileCount(int size)
@@ -40,7 +52,7 @@ namespace HexLib.HexSphereGenerator
             return 30 * (int)Math.Pow(3, size);
         }
 
-        public static Grid CreateSizeNGrid(int size)
+        public static Grid<TTile, TCorner> CreateSizeNGrid(int size)
         {
             Debug.Assert(size >= 0);
 
@@ -54,16 +66,16 @@ namespace HexLib.HexSphereGenerator
             }
         }
 
-        public static Grid CreateSize0Grid()
+        public static Grid<TTile, TCorner> CreateSize0Grid()
         {
-            Grid grid = new Grid(0);
+            Grid<TTile, TCorner> grid = new Grid<TTile, TCorner>(0);
             double x = -0.525731112119133606;
             double z = -0.850650808352039932;
 
-            Vector3[] icos_tiles = new[] {
-                new Vector3(-x, 0, z), new Vector3(x, 0, z), new Vector3(-x, 0, -z), new Vector3(x, 0, -z),
-                new Vector3(0, z, x), new Vector3(0, z, -x), new Vector3(0, -z, x), new Vector3(0, -z, -x),
-                new Vector3(z, x, 0), new Vector3(-z, x, 0), new Vector3(z, -x, 0), new Vector3(-z, -x, 0)
+            VectorD[] icos_tiles = new[] {
+                new VectorD(new double[] { -x, 0, z }), new VectorD(new double[] { x, 0, z }), new VectorD(new double[] { -x, 0, -z }), new VectorD(new double[] { x, 0, -z }),
+                new VectorD(new double[] { 0, z, x }), new VectorD(new double[] { 0, z, -x }), new VectorD(new double[] { 0, -z, x }), new VectorD(new double[] { 0, -z, -x }),
+                new VectorD(new double[] { z, x, 0 }), new VectorD(new double[] { -z, x, 0 }), new VectorD(new double[] { z, -x, 0 }), new VectorD(new double[] { -z, -x, 0 })
             };
 
             int[][] icos_tiles_n = new[] {
@@ -72,7 +84,7 @@ namespace HexLib.HexSphereGenerator
                 new [] {5, 3, 10, 1, 4}, new [] {2, 5, 4, 0, 11}, new [] {3, 7, 6, 1, 8},   new [] {7, 2, 9, 0, 6}
             };
 
-            foreach (Tile t in grid.Tiles)
+            foreach (TTile t in grid.Tiles)
             {
                 t.V = icos_tiles[t.Id];
                 for (int k = 0; k < 5; k++)
@@ -104,7 +116,7 @@ namespace HexLib.HexSphereGenerator
             grid.AddCorner(19, 4, 8, 1);
 
             //_add corners to corners
-            foreach (Corner c in grid.Corners)
+            foreach (TCorner c in grid.Corners)
             {
                 for (int k = 0; k < 3; k++)
                 {
@@ -114,7 +126,7 @@ namespace HexLib.HexSphereGenerator
 
             //new edges
             int next_edge_id = 0;
-            foreach (Tile t in grid.Tiles)
+            foreach (TTile t in grid.Tiles)
             {
                 for (int k = 0; k < 5; k++)
                 {
@@ -129,12 +141,12 @@ namespace HexLib.HexSphereGenerator
             return grid;
         }
 
-        private Grid CreateSubdividedGrid()
+        private Grid<TTile, TCorner> CreateSubdividedGrid()
         {
-            Grid grid = new Grid(Size + 1);
+            Grid<TTile, TCorner> grid = new Grid<TTile, TCorner>(Size + 1);
 
-            int prev_tile_count = Tiles.Count;
-            int prev_corner_count = Corners.Count;
+            int prev_tile_count = Tiles.Length;
+            int prev_corner_count = Corners.Length;
 
             //old tiles
             for (int i = 0; i < prev_tile_count; i++)
@@ -157,9 +169,9 @@ namespace HexLib.HexSphereGenerator
             }
             //new corners
             int next_corner_id = 0;
-            foreach (Tile n in Tiles)
+            foreach (TTile n in Tiles)
             {
-                Tile t = grid.Tiles[n.Id];
+                TTile t = grid.Tiles[n.Id];
                 for (int k = 0; k < t.EdgeCount; k++)
                 {
                     grid.AddCorner(next_corner_id, t.Id, t.Tiles[(k + t.EdgeCount - 1) % t.EdgeCount].Id, t.Tiles[k].Id);
@@ -168,7 +180,7 @@ namespace HexLib.HexSphereGenerator
             }
 
             //connect corners
-            foreach (Corner c in grid.Corners)
+            foreach (TCorner c in grid.Corners)
             {
                 for (int k = 0; k < 3; k++)
                 {
@@ -178,7 +190,7 @@ namespace HexLib.HexSphereGenerator
 
             //new edges
             int next_edge_id = 0;
-            foreach (Tile t in grid.Tiles)
+            foreach (TTile t in grid.Tiles)
             {
                 for (int k = 0; k < t.EdgeCount; k++)
                 {
@@ -195,10 +207,12 @@ namespace HexLib.HexSphereGenerator
 
         private void AddCorner(int id, int t1, int t2, int t3)
         {
-            Corner c = Corners[id];
-            Tile[] t = new[] { Tiles[t1], Tiles[t2], Tiles[t3] };
-            Vector3 v = t[0].V + t[1].V + t[2].V;
-            c.V = v.GetNormal();
+            TCorner c = Corners[id];
+            TTile[] t = new[] { Tiles[t1], Tiles[t2], Tiles[t3] };
+            VectorD v = t[0].V + t[1].V + t[2].V;
+
+
+            c.V = (VectorD)v.Normalize(2.0);
             for (int i = 0; i < 3; i++)
             {
                 t[i].Corners[t[i].GetTilePosition(t[(i + 2) % 3])] = c;
@@ -209,8 +223,8 @@ namespace HexLib.HexSphereGenerator
         private void AddEdge(int id, int t1, int t2)
         {
             Edge e = Edges[id];
-            Tile[] t = new[] { Tiles[t1], Tiles[t2] };
-            Corner[] c = new[] {
+            TTile[] t = new[] { Tiles[t1], Tiles[t2] };
+            TCorner[] c = new[] {
                 Corners[t[0].Corners[ t[0].GetTilePosition(t[1]) ].Id],
                 Corners[t[0].Corners[ (t[0].GetTilePosition(t[1]) + 1) % t[0].EdgeCount ].Id]
             };

@@ -10,7 +10,6 @@ namespace GameWorld.Gen
     /// </summary>
     public class Perlin3D
     {
-        private static readonly object _syncRoot = new object();
         private static Perlin3D _instance = new Perlin3D();
 
         public static Perlin3D Instance

@@ -24,7 +24,7 @@ namespace GameWorld
         private BasicEffect sphereEffect;
         private Vector3 spherePosition;
         private HexGrid _hexGrid;
-        private HexSphere _hexSphere;
+        private DrawableHexSphere _hexSphere;
         private bool isWireFrame;
 
         private Model model;
@@ -95,7 +95,7 @@ namespace GameWorld
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-            _hexSphere = new HexSphere(5);
+            _hexSphere = new DrawableHexSphere(7);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
@@ -238,6 +238,7 @@ namespace GameWorld
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DarkGray);
+            GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
             DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
@@ -247,6 +248,8 @@ namespace GameWorld
             sphereEffect.View = camera.ViewMatrix;
             sphereEffect.Projection = camera.ProjectionMatrix;
             _hexSphere.Draw(graphics, sphereEffect, spriteBatch, generalFont);
+
+            GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = false };
 
             string hintString = "";
 

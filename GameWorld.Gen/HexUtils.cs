@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HexLib
+namespace GameWorld.Gen
 {
     public struct PointI
     {
