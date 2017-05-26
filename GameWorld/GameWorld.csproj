@@ -63,6 +63,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Animation\2D\AnimatedSprite.cs" />
+    <Compile Include="Audio\AudioManager.cs" />
+    <Compile Include="Audio\CueData.cs" />
     <Compile Include="Camera\Camera.cs" />
     <Compile Include="Configurations\Input\BindingList.cs" />
     <Compile Include="Configurations\Input\InputConfigManager.cs" />
@@ -116,6 +118,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\GeneralFont.spritefont" />
+    <None Include="Content\Sound\Win\SDHKAudio.xgs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Sound\Win\Sound Bank.xsb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Sound\Win\Wave Bank.xwb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

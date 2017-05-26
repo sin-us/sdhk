@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace MonoGameWorld.Utilities
 {
@@ -18,6 +15,11 @@ namespace MonoGameWorld.Utilities
         public static bool IsOne(float a)
         {
             return IsZero(a - 1.0f);
+        }
+
+        public static bool IsQuaternionNormalized(Quaternion quaternion)
+        {
+            return IsOne((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y) + (quaternion.Z * quaternion.Z) + (quaternion.W * quaternion.W));
         }
     }
 }

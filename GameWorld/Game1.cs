@@ -4,11 +4,13 @@ using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using MonoGameWorld.HexGrid;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
 using MonoGameWorld.Configurations.Input;
+using MonoGameWorld.Audio;
 
 namespace GameWorld
 {
@@ -30,6 +32,9 @@ namespace GameWorld
         private Model model;
         private Matrix modelWorld;
         private Vector3 modelPosition;
+        private float modelAngle;
+
+        private AudioManager audioManager;
 
         private ControlPanelListener _controlPanelListener;
         private string _customText = string.Empty;
@@ -74,11 +79,14 @@ namespace GameWorld
             sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
 
             modelPosition = new Vector3(0, 0, 0);
+            modelAngle = 0.0f;
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
+
+            audioManager = new AudioManager("Content/Sound/Win/SDHKAudio.xgs", "Content/Sound/Win/Wave Bank.xwb", "Content/Sound/Win/Sound Bank.xsb");
 
             base.Initialize();
         }
@@ -99,6 +107,11 @@ namespace GameWorld
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
+
+            audioManager.AddCue("AmbientSpace", "Space", false);
+            audioManager.AddCue("SithHolocron", "Dark", true);
+            audioManager.CueDictionary["AmbientSpace"].Cue.Play();
+            audioManager.CueDictionary["SithHolocron"].Cue.Play();
         }
 
         /// <summary>
@@ -229,6 +242,29 @@ namespace GameWorld
             }
 
             camera.Update();
+            modelAngle += 0.01f;
+            modelWorld = Matrix.CreateRotationX(modelAngle) * Matrix.CreateRotationY(modelAngle) * Matrix.CreateTranslation(modelPosition - camera.Offset);
+
+
+            audioManager.Listener.Position = Vector3.Zero;
+            audioManager.Listener.Forward = camera.LookAt;
+            audioManager.Listener.Up = camera.Up;
+            if (camera.IsMoving)
+            {
+                audioManager.Listener.Velocity = (camera.MovementVelocity * camera.LookAt);
+            }
+            else
+            {
+                audioManager.Listener.Velocity = Vector3.Zero;
+            }
+
+            audioManager.CueDictionary["SithHolocron"].Emitter.Position = (modelPosition - camera.Offset);
+            audioManager.CueDictionary["SithHolocron"].Emitter.Up = new Vector3(0, 1, 0);
+            audioManager.CueDictionary["SithHolocron"].Emitter.Forward = new Vector3(0, 0, 1);
+            audioManager.CueDictionary["SithHolocron"].Emitter.Velocity = Vector3.Zero;
+            audioManager.CueDictionary["SithHolocron"].Emitter.DopplerScale = 1.0f;
+
+            audioManager.Update();
         }
 
         /// <summary>
@@ -237,7 +273,8 @@ namespace GameWorld
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkGray);
+            GraphicsDevice.Clear(Color.Black);
+
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
@@ -284,13 +321,13 @@ namespace GameWorld
                 {
                     effect.LightingEnabled = true;
                     effect.PreferPerPixelLighting = true;
-                    effect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
+                    effect.AmbientLightColor = new Vector3(0.1f, 0.0f, 0.0f);
                     effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
-                    effect.DirectionalLight0.DiffuseColor = new Vector3(0.7f, 0.7f, 0.7f);
+                    effect.DirectionalLight0.DiffuseColor = new Vector3(1.0f, 0.0f, 0.0f);
                     effect.FogEnabled = true;
-                    effect.FogColor = Color.DarkGray.ToVector3();
+                    effect.FogColor = Color.Black.ToVector3();
                     effect.FogStart = 8.0f;
-                    effect.FogEnd = 50.0f;
+                    effect.FogEnd = 80.0f;
                     effect.World = world;
                     effect.View = view;
                     effect.Projection = projection;
