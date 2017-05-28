@@ -21,7 +21,7 @@ namespace MonoGameWorld.HexGrid
 
         private VertexPositionColorTexture[] _vertices;
 
-        public DrawableHexSphere(int size, int radius = 30, int groundHeight = 9)
+        public DrawableHexSphere(int size, int radius = 30, int groundHeight = 8)
         {
             _sphereGrid = new HexSphere<CustomTile, CustomTileCorner>(size);
 
