@@ -21,7 +21,7 @@ namespace MonoGameWorld.HexGrid
 
         private VertexPositionColorTexture[] _vertices;
 
-        public DrawableHexSphere(int size, int radius = 30, int groundHeight = 2)
+        public DrawableHexSphere(int size, int radius = 30, int groundHeight = 8)
         {
             _sphereGrid = new HexSphere<CustomTile, CustomTileCorner>(size);
 
@@ -110,6 +110,37 @@ namespace MonoGameWorld.HexGrid
                 {
                     // "Raised" tiles (top)
                     float height = (float)(Radius + t.Height * GroundHeight);
+                    for (int j = 0; j < t.Corners.Length - 2; ++j)
+                    {
+                        vertices.Add(new VertexPositionColorTexture { Position = new Vector3(t.Corners[j + 2].X * height, t.Corners[j + 2].Y * height, t.Corners[j + 2].Z * height), Color = t.Color });
+                        vertices.Add(new VertexPositionColorTexture { Position = new Vector3(t.Corners[j + 1].X * height, t.Corners[j + 1].Y * height, t.Corners[j + 1].Z * height), Color = t.Color });
+                        vertices.Add(new VertexPositionColorTexture { Position = new Vector3(t.Corners[0].X * height, t.Corners[0].Y * height, t.Corners[0].Z * height), Color = t.Color });
+                    }
+
+                    // Sides of raised tiles
+                    for (int i = 0; i < t.Corners.Length; ++i)
+                    {
+                        // Two points of "0-level" edge
+                        var a1 = new Vector3(t.Corners[i].X * Radius, t.Corners[i].Y * Radius, t.Corners[i].Z * Radius);
+                        var a2 = new Vector3(t.Corners[(i + 1) % t.Corners.Length].X * Radius, t.Corners[(i + 1) % t.Corners.Length].Y * Radius, t.Corners[(i + 1) % t.Corners.Length].Z * Radius);
+
+                        // Two points of "height-level" edge
+                        var b1 = new Vector3(t.Corners[i].X * height, t.Corners[i].Y * height, t.Corners[i].Z * height);
+                        var b2 = new Vector3(t.Corners[(i + 1) % t.Corners.Length].X * height, t.Corners[(i + 1) % t.Corners.Length].Y * height, t.Corners[(i + 1) % t.Corners.Length].Z * height);
+
+                        vertices.Add(new VertexPositionColorTexture { Position = b1, Color = t.Color });
+                        vertices.Add(new VertexPositionColorTexture { Position = a2, Color = t.Color });
+                        vertices.Add(new VertexPositionColorTexture { Position = a1, Color = t.Color });
+
+                        vertices.Add(new VertexPositionColorTexture { Position = b1, Color = t.Color });
+                        vertices.Add(new VertexPositionColorTexture { Position = b2, Color = t.Color });
+                        vertices.Add(new VertexPositionColorTexture { Position = a2, Color = t.Color });
+                    }
+                }
+                else
+                {
+                    // "Raised" tiles (top)
+                    float height = (float)(Radius + 0.5 * GroundHeight);
                     for (int j = 0; j < t.Corners.Length - 2; ++j)
                     {
                         vertices.Add(new VertexPositionColorTexture { Position = new Vector3(t.Corners[j + 2].X * height, t.Corners[j + 2].Y * height, t.Corners[j + 2].Z * height), Color = t.Color });
