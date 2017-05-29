@@ -4,13 +4,11 @@ using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Audio;
 using MonoGameWorld.HexGrid;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
 using MonoGameWorld.Configurations.Input;
-using MonoGameWorld.Audio;
 
 namespace GameWorld
 {
@@ -23,18 +21,10 @@ namespace GameWorld
         private SpriteBatch spriteBatch;
         private Camera camera;
         private SpriteFont generalFont;
-        private BasicEffect sphereEffect;
-        private Vector3 spherePosition;
         private HexGrid _hexGrid;
-        private HexSphere _hexSphere;
+        private DrawableHexSphere _hexSphere;
         private bool isWireFrame;
-
-        private Model model;
-        private Matrix modelWorld;
-        private Vector3 modelPosition;
-        private float modelAngle;
-
-        private AudioManager audioManager;
+        private bool isKeybindingsHintShown;
 
         private ControlPanelListener _controlPanelListener;
         private string _customText = string.Empty;
@@ -62,7 +52,7 @@ namespace GameWorld
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            camera = new Camera(new Vector3(0, 0, 10.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
+            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -71,22 +61,15 @@ namespace GameWorld
             winForm.Cursor = MouseManager.CustomCursor;
 
             isWireFrame = false;
+            isKeybindingsHintShown = false;
 
-            spherePosition = new Vector3(0, 0, 0);
-            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
-            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+            _hexSphere = new DrawableHexSphere(graphics, 7);
+            _hexSphere.Effect.VertexColorEnabled = true;
 
-            modelPosition = new Vector3(0, 0, 0);
-            modelAngle = 0.0f;
-
-            // Create a new SpriteBatch, which can be used to draw textures.
+            // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
-
-            audioManager = new AudioManager("Content/Sound/Win/SDHKAudio.xgs", "Content/Sound/Win/Wave Bank.xwb", "Content/Sound/Win/Sound Bank.xsb");
 
             base.Initialize();
         }
@@ -97,22 +80,13 @@ namespace GameWorld
         /// </summary>
         protected override void LoadContent()
         {
-            // TODO: use this.Content to load your game content here
-            model = Content.Load<Model>("lava_cube");
-
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-            _hexSphere = new HexSphere(5);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
-
-            audioManager.AddCue("AmbientSpace", "Space", false);
-            audioManager.AddCue("SithHolocron", "Dark", true);
-            audioManager.CueDictionary["AmbientSpace"].Cue.Play();
-            audioManager.CueDictionary["SithHolocron"].Cue.Play();
         }
 
         /// <summary>
@@ -132,7 +106,6 @@ namespace GameWorld
         protected override void Update(GameTime gameTime)
         {
             // TODO: Add your update logic here
-
             FrameRateCounter.Update(gameTime);
             KeyboardManager.Update();
             MouseManager.Update();
@@ -147,7 +120,13 @@ namespace GameWorld
                 this.Exit();
             }
 
-            // Switch to/from wireframe mode
+            // Toggle keybindings hint
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleKeybindingsHint))
+            {
+                isKeybindingsHintShown = !isKeybindingsHintShown;
+            }
+
+            // Toggle wireframe mode
             if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleWireframe))
             {
                 isWireFrame = !isWireFrame;
@@ -179,6 +158,19 @@ namespace GameWorld
                 graphics.ApplyChanges();
             }
 
+            HandleCameraInput();
+
+
+            _hexSphere.Update(camera.Offset);
+            /*sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+            sphereEffect.View = camera.ViewMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;*/
+
+            base.Update(gameTime);
+        }
+
+        private void HandleCameraInput()
+        {
             // Camera handling
             if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
             {
@@ -230,34 +222,6 @@ namespace GameWorld
             }
 
             camera.Update();
-            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
-            modelAngle += 0.01f;
-            modelWorld = Matrix.CreateRotationX(modelAngle) * Matrix.CreateRotationY(modelAngle) * Matrix.CreateTranslation(modelPosition - camera.Offset);
-
-
-            audioManager.Listener.Position = Vector3.Zero;
-            audioManager.Listener.Forward = camera.LookAt;
-            audioManager.Listener.Up = camera.Up;
-            if (camera.IsMoving)
-            {
-                audioManager.Listener.Velocity = (camera.MovementVelocity * camera.LookAt);
-            }
-            else
-            {
-                audioManager.Listener.Velocity = Vector3.Zero;
-            }
-
-            audioManager.CueDictionary["SithHolocron"].Emitter.Position = (modelPosition - camera.Offset);
-            audioManager.CueDictionary["SithHolocron"].Emitter.Up = new Vector3(0, 1, 0);
-            audioManager.CueDictionary["SithHolocron"].Emitter.Forward = new Vector3(0, 0, 1);
-            audioManager.CueDictionary["SithHolocron"].Emitter.Velocity = Vector3.Zero;
-            audioManager.CueDictionary["SithHolocron"].Emitter.DopplerScale = 1.0f;
-
-            audioManager.Update();
-
-            base.Update(gameTime);
         }
 
         /// <summary>
@@ -271,20 +235,30 @@ namespace GameWorld
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
-            DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
+            
+            // Hex Sphere
+            _hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
 
             string hintString = "";
 
-            foreach (var binding in InputConfigManager.Bindings.Bindings)
+            if (isKeybindingsHintShown)
             {
-                hintString += binding.Description + ": ";
-
-                if (binding.KeyBindingInfo.Key != null)
+                foreach (var binding in InputConfigManager.Bindings.Bindings)
                 {
-                    hintString += binding.KeyBindingInfo.Key.ToString();
-                }
+                    hintString += binding.Description + ": ";
 
-                hintString += "\n";
+                    if (binding.KeyBindingInfo.Key != null)
+                    {
+                        hintString += binding.KeyBindingInfo.Key.ToString();
+                    }
+
+                    hintString += "\n";
+                }
+            }
+            else
+            {
+                hintString = InputConfigManager.Bindings.GetBindingByAction(ActionType.ToggleKeybindingsHint).Description + ": " +
+                             InputConfigManager.Bindings.GetBindingByAction(ActionType.ToggleKeybindingsHint).KeyBindingInfo.Key.ToString();
             }
 
             // Show FPS

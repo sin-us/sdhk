@@ -71,10 +71,11 @@
     <Compile Include="Configurations\JsonFileManager.cs" />
     <Compile Include="Configurations\Input\KeyBindingInfo.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="HexGrid\CustomTile.cs" />
     <Compile Include="Inputs\Keyboard\KeyboardManager.cs" />
     <Compile Include="Inputs\Keyboard\KeyStatus.cs" />
     <Compile Include="HexGrid\HexGrid.cs" />
-    <Compile Include="HexGrid\HexSphere.cs" />
+    <Compile Include="HexGrid\DrawableHexSphere.cs" />
     <Compile Include="Inputs\Mouse\ButtonStatus.cs" />
     <Compile Include="Inputs\Mouse\MouseManager.cs" />
     <Compile Include="Inputs\Mouse\MouseStatus.cs" />
@@ -86,6 +87,9 @@
     <Compile Include="Utilities\Mathematics.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="MathNet.Numerics.Core, Version=3.17.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.Core.3.17.0\lib\net451\MathNet.Numerics.Core.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.WindowsDX.3.6.0.1625\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
@@ -94,6 +98,7 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -125,13 +130,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GameWorld.Gen\GameWorld.Gen.csproj">
+      <Project>{99266098-49f4-46ac-80e5-11d40c359fc3}</Project>
+      <Name>GameWorld.Gen</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GameWorld.Shared\GameWorld.Shared.csproj">
       <Project>{25E10431-3FB6-4F12-A55B-CB2127A389DC}</Project>
       <Name>GameWorld.Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HexLib\HexLib.csproj">
-      <Project>{49ffda00-1d61-45ca-a99f-78fe56814865}</Project>
-      <Name>HexLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
