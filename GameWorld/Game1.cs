@@ -4,13 +4,11 @@ using MonoGameWorld.Inputs.Mouse;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Audio;
 using MonoGameWorld.HexGrid;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
 using MonoGameWorld.Configurations.Input;
-using MonoGameWorld.Audio;
 
 namespace GameWorld
 {
@@ -23,8 +21,6 @@ namespace GameWorld
         private SpriteBatch spriteBatch;
         private Camera camera;
         private SpriteFont generalFont;
-        private BasicEffect sphereEffect;
-        private Vector3 spherePosition;
         private HexGrid _hexGrid;
         private DrawableHexSphere _hexSphere;
         private bool isWireFrame;
@@ -67,11 +63,8 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            spherePosition = new Vector3(0, 0, 0);
-            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
-            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+            _hexSphere = new DrawableHexSphere(graphics, 7);
+            _hexSphere.Effect.VertexColorEnabled = true;
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -87,12 +80,10 @@ namespace GameWorld
         /// </summary>
         protected override void LoadContent()
         {
-            sphereEffect.VertexColorEnabled = true;
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-            _hexSphere = new DrawableHexSphere(7);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
@@ -169,9 +160,11 @@ namespace GameWorld
 
             HandleCameraInput();
 
-            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+
+            _hexSphere.Update(camera.Offset);
+            /*sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
             sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;*/
 
             base.Update(gameTime);
         }
@@ -244,7 +237,7 @@ namespace GameWorld
             // Draw any meshes before the text in order for it to be on the top
             
             // Hex Sphere
-            _hexSphere.Draw(graphics, sphereEffect, spriteBatch, generalFont);
+            _hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
 
             string hintString = "";
 

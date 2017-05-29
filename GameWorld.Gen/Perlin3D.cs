@@ -17,11 +17,6 @@ namespace GameWorld.Gen
             get { return _instance; }
         }
 
-        public static void ReinitializeWithSeed(int seed)
-        {
-            _instance = new Perlin3D(seed);
-        }
-
         private const int permutationTableSize = 1024;
 
         //permutation table
@@ -55,7 +50,12 @@ namespace GameWorld.Gen
                 }
             }
 
-            Random rand = (seed == null) ? new Random() : new Random((int)seed);
+            SetSeed(seed);
+        }
+
+        public void SetSeed(int? seed = null)
+        {
+            Random rand = ((seed == null) ? new Random() : new Random((int)seed));
 
             rand.NextBytes(permutationTable);
 
@@ -64,7 +64,7 @@ namespace GameWorld.Gen
             mZ = rand.Next();
         }
 
-        private VectorD getGradient(int x, int y, int z)
+        private VectorD GetGradient(int x, int y, int z)
         {
             // pick random cell in permutation table (cells 0 to 'permutationTableSize')
             int index = ((x * mX) ^ (y * mY) + z * mZ + (mX * mY * mZ)) & (permutationTableSize - 1);
@@ -75,9 +75,9 @@ namespace GameWorld.Gen
             return gradientSet[index];
         }
 
-        private static float FastPow(float value, uint pow)
+        private double FastPow(double value, uint pow)
         {
-            float powOfValue = 1;
+            double powOfValue = 1;
 
             for (uint i = 0; i < pow; ++i)
             {
@@ -87,17 +87,17 @@ namespace GameWorld.Gen
             return powOfValue;
         }
 
-        private static double BlendingCurve(double d)
+        private double BlendingCurve(double d)
         {
             return (d * d * d * (d * (d * 6.0 - 15.0) + 10.0));
         }
 
-        private static double interpolation(double a, double b, double t)
+        private double Interpolation(double a, double b, double t)
         {
             return ((1.0 - t) * a + t * b);
         }
 
-        public double get3DNoiseValue(double x, double y, double z)
+        public double Get3DNoiseValue(double x, double y, double z)
         {
             // find unit grid cell containing point
             int floorX = (int)Math.Floor(x);
@@ -110,14 +110,14 @@ namespace GameWorld.Gen
             double relZ = z - floorZ;
 
             //gradients of cube vertices
-            VectorD g000 = getGradient(floorX, floorY, floorZ);
-            VectorD g001 = getGradient(floorX, floorY, floorZ + 1);
-            VectorD g010 = getGradient(floorX, floorY + 1, floorZ);
-            VectorD g011 = getGradient(floorX, floorY + 1, floorZ + 1);
-            VectorD g100 = getGradient(floorX + 1, floorY, floorZ);
-            VectorD g101 = getGradient(floorX + 1, floorY, floorZ + 1);
-            VectorD g110 = getGradient(floorX + 1, floorY + 1, floorZ);
-            VectorD g111 = getGradient(floorX + 1, floorY + 1, floorZ + 1);
+            VectorD g000 = GetGradient(floorX, floorY, floorZ);
+            VectorD g001 = GetGradient(floorX, floorY, floorZ + 1);
+            VectorD g010 = GetGradient(floorX, floorY + 1, floorZ);
+            VectorD g011 = GetGradient(floorX, floorY + 1, floorZ + 1);
+            VectorD g100 = GetGradient(floorX + 1, floorY, floorZ);
+            VectorD g101 = GetGradient(floorX + 1, floorY, floorZ + 1);
+            VectorD g110 = GetGradient(floorX + 1, floorY + 1, floorZ);
+            VectorD g111 = GetGradient(floorX + 1, floorY + 1, floorZ + 1);
 
             // noise contribution from each of the eight corner
             double n000 = g000 * new VectorD(new[] { relX, relY, relZ });
@@ -135,31 +135,36 @@ namespace GameWorld.Gen
             double w = BlendingCurve(relZ);
 
             // interpolate along x the contribution from each of the corners
-            double nx00 = interpolation(n000, n100, u);
-            double nx01 = interpolation(n001, n101, u);
-            double nx10 = interpolation(n010, n110, u);
-            double nx11 = interpolation(n011, n111, u);
+            double nx00 = Interpolation(n000, n100, u);
+            double nx01 = Interpolation(n001, n101, u);
+            double nx10 = Interpolation(n010, n110, u);
+            double nx11 = Interpolation(n011, n111, u);
 
             // interpolate the four results along y
-            double nxy0 = interpolation(nx00, nx10, v);
-            double nxy1 = interpolation(nx01, nx11, v);
+            double nxy0 = Interpolation(nx00, nx10, v);
+            double nxy1 = Interpolation(nx01, nx11, v);
 
             // interpolate the two last results along z
-            double nxyz = interpolation(nxy0, nxy1, w);
+            double nxyz = Interpolation(nxy0, nxy1, w);
 
             return nxyz;
         }
 
-        public double getMultioctave3DNoiseValue(double x, double y, double z, uint startOctaveNumber, uint octaveCount)
+        public double GetMultioctave3DNoiseValue(double x, double y, double z, uint startOctaveNumber, uint octaveCount, double persistence)
         {
-            double res = 0;
+            double total = 0;
+            double frequency = FastPow(2, startOctaveNumber);
+            double amplitude = FastPow(persistence, startOctaveNumber);
+
             for (uint i = startOctaveNumber; i < (startOctaveNumber + octaveCount); ++i)
             {
-                var powOf2 = FastPow(2, i);
+                total += (amplitude * Get3DNoiseValue(x / frequency, y / frequency, z / frequency));
 
-                res += (powOf2 * get3DNoiseValue(x / powOf2, y / powOf2, z / powOf2));
+                frequency *= 2;
+                amplitude *= persistence;
             }
-            return res;
+
+            return total;
         }
     }
 }

@@ -16,14 +16,38 @@ namespace MonoGameWorld.HexGrid
 
         private const int PerlinCoefficient = 100;
 
+        private GraphicsDeviceManager graphics;
+        private Vector3 rotation;
+
+        public Vector3 Rotation
+        {
+            get { return rotation; }
+            set
+            {
+                rotation = value;
+                RotationQuaternion = Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
+                RotationQuaternion.Normalize();
+            }
+        }
+
+        public Vector3 Position { get; set; }
+        public Quaternion RotationQuaternion { get; private set; }
+        public Matrix World { get; private set; }
+
         public int Radius { get; private set; }
         public int GroundHeight { get; private set; }
 
+        public BasicEffect Effect { get; set; }
+
         private VertexPositionColorTexture[] _vertices;
 
-        public DrawableHexSphere(int size, int radius = 30, int groundHeight = 8)
+        public DrawableHexSphere(GraphicsDeviceManager graphics, int size, int radius = 30, int groundHeight = 8)
         {
             _sphereGrid = new HexSphere<CustomTile, CustomTileCorner>(size);
+
+            this.graphics = graphics;
+
+            Effect = new BasicEffect(graphics.GraphicsDevice);
 
             Radius = radius;
             GroundHeight = groundHeight;
@@ -32,7 +56,7 @@ namespace MonoGameWorld.HexGrid
 
             foreach (var t in _sphereGrid.Tiles)
             {
-                var val = _perlin.getMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 7);
+                var val = _perlin.GetMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 7, 2);
 
                 _minNoise = Math.Min(_minNoise, val);
                 _maxNoise = Math.Max(_maxNoise, val);
@@ -40,7 +64,7 @@ namespace MonoGameWorld.HexGrid
 
             foreach (var t in _sphereGrid.Tiles)
             {
-                var val = _perlin.getMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 7);
+                var val = _perlin.GetMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 7, 2);
                 val = (val - _minNoise) / (_maxNoise - _minNoise);
                 float fVal = (float)val;
 
@@ -83,9 +107,18 @@ namespace MonoGameWorld.HexGrid
             InitializeVertices();
         }
 
-        public void Draw(GraphicsDeviceManager graphics, BasicEffect effect, SpriteBatch spriteBatch, SpriteFont generalFont)
+        public void Update(Vector3 cameraOffset)
         {
-            foreach (var pass in effect.CurrentTechnique.Passes)
+            World = Matrix.CreateFromQuaternion(RotationQuaternion) * Matrix.CreateTranslation(Position - cameraOffset);
+        }
+
+        public void Draw(Matrix projection, Matrix view)
+        {
+            Effect.Projection = projection;
+            Effect.View = view;
+            Effect.World = World;
+
+            foreach (var pass in Effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _vertices, 0, _vertices.Length / 3);

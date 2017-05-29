@@ -122,7 +122,7 @@ namespace MonoGameWorld.Camera
             // check rotation quaternion normalization
             if (!Mathematics.IsQuaternionNormalized(Rotation))
             {
-                Rotation = Quaternion.Normalize(Rotation);
+                Rotation.Normalize();
             }
 
             if (CameraType == CameraType.Free)
