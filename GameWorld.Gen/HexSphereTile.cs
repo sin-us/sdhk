@@ -8,15 +8,15 @@ namespace GameWorld.Gen
     {
         public int Id { get; internal set; }
         public int EdgeCount { get; internal set; }
-        public VectorD V { get; internal set; }
+        public VectorD TileCenterPosition { get; internal set; }
         public HexSphereTile[] Tiles { get; internal set; }
         public HexSphereTileCorner[] Corners { get; internal set; }
 
         internal Edge[] Edges { get; set; }
 
-        public float X => (float)V[0];
-        public float Y => (float)V[1];
-        public float Z => (float)V[2];
+        public float X => (float)TileCenterPosition[0];
+        public float Y => (float)TileCenterPosition[1];
+        public float Z => (float)TileCenterPosition[2];
 
         internal void Initialize(int id, int edge_count)
         {

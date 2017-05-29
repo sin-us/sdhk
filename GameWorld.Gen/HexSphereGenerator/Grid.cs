@@ -86,7 +86,7 @@ namespace GameWorld.Gen.HexSphereGenerator
 
             foreach (TTile t in grid.Tiles)
             {
-                t.V = icos_tiles[t.Id];
+                t.TileCenterPosition = icos_tiles[t.Id];
                 for (int k = 0; k < 5; k++)
                 {
                     t.Tiles[k] = grid.Tiles[icos_tiles_n[t.Id][k]];
@@ -151,7 +151,7 @@ namespace GameWorld.Gen.HexSphereGenerator
             //old tiles
             for (int i = 0; i < prev_tile_count; i++)
             {
-                grid.Tiles[i].V = Tiles[i].V;
+                grid.Tiles[i].TileCenterPosition = Tiles[i].TileCenterPosition;
                 for (int k = 0; k < grid.Tiles[i].EdgeCount; k++)
                 {
                     grid.Tiles[i].Tiles[k] = grid.Tiles[Tiles[i].Corners[k].Id + prev_tile_count];
@@ -160,7 +160,7 @@ namespace GameWorld.Gen.HexSphereGenerator
             //old corners become tiles
             for (int i = 0; i < prev_corner_count; i++)
             {
-                grid.Tiles[i + prev_tile_count].V = Corners[i].V;
+                grid.Tiles[i + prev_tile_count].TileCenterPosition = Corners[i].V;
                 for (int k = 0; k < 3; k++)
                 {
                     grid.Tiles[i + prev_tile_count].Tiles[2 * k] = grid.Tiles[Corners[i].Corners[k].Id + prev_tile_count];
@@ -209,7 +209,7 @@ namespace GameWorld.Gen.HexSphereGenerator
         {
             TCorner c = Corners[id];
             TTile[] t = new[] { Tiles[t1], Tiles[t2], Tiles[t3] };
-            VectorD v = t[0].V + t[1].V + t[2].V;
+            VectorD v = t[0].TileCenterPosition + t[1].TileCenterPosition + t[2].TileCenterPosition;
 
 
             c.V = (VectorD)v.Normalize(2.0);
