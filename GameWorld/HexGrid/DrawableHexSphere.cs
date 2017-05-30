@@ -17,7 +17,7 @@ namespace MonoGameWorld.HexGrid
         private const int PerlinCoefficient = 80;
 
         private double waterHeight = 0.5f;
-        private int desiredWaterCoveragePercent = 100;
+        private int desiredWaterCoveragePercent = 99;
 
         private GraphicsDeviceManager graphics;
         private Vector3 rotation;
