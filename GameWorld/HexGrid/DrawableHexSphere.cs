@@ -16,7 +16,8 @@ namespace MonoGameWorld.HexGrid
 
         private const int PerlinCoefficient = 80;
 
-        private float waterHeight = 0.5f;
+        private double waterHeight = 0.5f;
+        private int desiredWaterCoveragePercent = 100;
 
         private GraphicsDeviceManager graphics;
         private Vector3 rotation;
@@ -73,11 +74,18 @@ namespace MonoGameWorld.HexGrid
                 float fVal = (float)val;
 
                 t.Height = val;
+            }
+
+            waterHeight = GetHeightFromCoveragePercent(desiredWaterCoveragePercent);
+
+            foreach (var t in _sphereGrid.Tiles)//separated water detection from height calculation for water level calculation
+            {
+                float fVal = (float)t.Height;
 
                 // Ground
-                if (val > waterHeight)
+                if (t.Height > waterHeight)
                 {
-                    if (val > 0.75)
+                    if (t.Height > 0.75)
                     {
                         // Mountain
                         t.Color = new Color(fVal, fVal, fVal);
@@ -112,6 +120,46 @@ namespace MonoGameWorld.HexGrid
         {
             GroundHeight = groundHeight;
             InitializeVertices();
+        }
+
+        public double GetHeightFromCoveragePercent(int coveragePercent)
+        {
+            double resultHeight = 0.5f;
+            List<double> tiles_heights = new List<double>();
+
+            foreach (var t in _sphereGrid.Tiles)
+            {
+                tiles_heights.Add(t.Height);
+            }
+
+            tiles_heights.Sort();
+
+            if (0 > coveragePercent || 100 < coveragePercent)
+            {
+                resultHeight = 0.5f;
+            }
+            else if (0 == coveragePercent)
+            {
+                resultHeight = 0.0f;
+            }
+            else if (100 == coveragePercent)
+            {
+                resultHeight = 1.0f;
+            }
+            else
+            {
+                int index = (tiles_heights.Count * coveragePercent / 100) - 1;
+                if (0 < index)
+                {
+                    resultHeight = tiles_heights[index];
+                }
+                else
+                {
+                    resultHeight = tiles_heights[0];
+                }
+            }
+
+            return resultHeight;
         }
 
         public void Update(Vector3 cameraOffset)
