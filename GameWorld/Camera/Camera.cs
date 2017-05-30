@@ -190,6 +190,10 @@ namespace MonoGameWorld.Camera
         {
             if (CameraType != CameraType.ThirdPersonLocked)
             {
+                if (CameraType != CameraType.Free)
+                {
+                    angle = -angle;
+                }
                 Rotation = Quaternion.Multiply(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(angle)), Rotation);
             }
         }
