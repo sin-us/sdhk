@@ -96,6 +96,9 @@ namespace MonoGameWorld.HexGrid
                 }
             }
 
+            _sphereGrid.NorthPole.Color = Color.Red;
+            _sphereGrid.SouthPole.Color = Color.Red;
+
             InitializeVertices();
         }
 
