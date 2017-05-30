@@ -10,6 +10,10 @@ namespace MonoGameWorld.Configurations.Input
     {
         None,
         ToggleKeybindingsHint,
+        SwitchCameraFreeMode,
+        SwitchCameraThirdPersonMode,
+        SwitchCameraThirdPersonAltMode,
+        SwitchCameraThirdPersonLockedMode,
         CameraMoveForward,
         CameraMoveBackward,
         CameraMoveLeft,

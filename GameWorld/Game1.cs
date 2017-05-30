@@ -52,7 +52,7 @@ namespace GameWorld
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
+            camera = new Camera(new Vector3(0, 0, 200.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -63,7 +63,7 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            _hexSphere = new DrawableHexSphere(graphics, 7);
+            _hexSphere = new DrawableHexSphere(graphics, 8, 50);
             _hexSphere.Effect.VertexColorEnabled = true;
 
             // Create a new SpriteBatch, which can be used to draw textures / text
@@ -159,12 +159,7 @@ namespace GameWorld
             }
 
             HandleCameraInput();
-
-
             _hexSphere.Update(camera.Offset);
-            /*sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;*/
 
             base.Update(gameTime);
         }
@@ -172,6 +167,22 @@ namespace GameWorld
         private void HandleCameraInput()
         {
             // Camera handling
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraFreeMode))
+            {
+                camera.SetFreeCamera();
+            }
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonMode))
+            {
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.RotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFree, null, 200);
+            }
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonAltMode))
+            {
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.RotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFreeAlt, null, 200);
+            }
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonLockedMode))
+            {
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.RotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonLocked, null, 200);
+            }
             if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
             {
                 camera.MoveRelativeZ(-camera.MovementVelocity * FrameRateCounter.FrameTime);
@@ -265,7 +276,8 @@ namespace GameWorld
             ++FrameRateCounter.FrameCounter;
             spriteBatch.Begin();
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
-            spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 30), Color.White);
+            spriteBatch.DrawString(generalFont, "Camera type: " + camera.CameraType.ToString(), new Vector2(10, 30), Color.White);
+            spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 50), Color.White);
             spriteBatch.DrawString(generalFont, _customText, new Vector2(50, 10), Color.White);
             spriteBatch.End();
 

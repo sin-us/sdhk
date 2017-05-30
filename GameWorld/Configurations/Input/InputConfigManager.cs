@@ -12,6 +12,10 @@ namespace MonoGameWorld.Configurations.Input
         public static void DefaultInitialize()
         {
             AddCombination("Toggle keybindings hint", ActionType.ToggleKeybindingsHint, new KeyBindingInfo(ControllerType.Keyboard, Keys.F1));
+            AddCombination("Switch camera free mode", ActionType.SwitchCameraFreeMode, new KeyBindingInfo(ControllerType.Keyboard, Keys.D1));
+            AddCombination("Switch camera third person mode", ActionType.SwitchCameraThirdPersonMode, new KeyBindingInfo(ControllerType.Keyboard, Keys.D2));
+            AddCombination("Switch camera third person alt mode", ActionType.SwitchCameraThirdPersonAltMode, new KeyBindingInfo(ControllerType.Keyboard, Keys.D3));
+            AddCombination("Switch camera third person locked mode", ActionType.SwitchCameraThirdPersonLockedMode, new KeyBindingInfo(ControllerType.Keyboard, Keys.D4));
             AddCombination("Camera move forward", ActionType.CameraMoveForward, new KeyBindingInfo(ControllerType.Keyboard, Keys.W));
             AddCombination("Camera move backward", ActionType.CameraMoveBackward, new KeyBindingInfo(ControllerType.Keyboard, Keys.S));
             AddCombination("Camera move left", ActionType.CameraMoveLeft, new KeyBindingInfo(ControllerType.Keyboard, Keys.A));
