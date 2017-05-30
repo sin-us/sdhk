@@ -141,7 +141,7 @@ namespace MonoGameWorld.Camera
 
             GetAxisFromViewMatrix();
 
-            CheckIsMoving();
+            SetIsMoving();
         }
 
         public void SetAbsoluteRotation(float angleX, float angleY, float angleZ)
@@ -158,7 +158,7 @@ namespace MonoGameWorld.Camera
 
         public void RotateRelativeX(float angle)
         {
-            if (CheckIsThirdPersonType(CameraType))
+            if (IsThirdPersonType(CameraType))
             {
                 angle = -angle;
             }
@@ -249,7 +249,7 @@ namespace MonoGameWorld.Camera
 
         public void SetFreeCamera()
         {
-            if (CheckIsThirdPersonType(CameraType))
+            if (IsThirdPersonType(CameraType))
             {
                 ViewMatrix.Decompose(out Vector3 dummyScale, out rotation, out Vector3 dummyTranslation);
             }
@@ -282,7 +282,7 @@ namespace MonoGameWorld.Camera
 
         public void SetThirdPersonCamera(Vector3 hostPosition, Quaternion hostRotation, Vector3 initialRelativeRotation, CameraType desiredType, Vector3? lookAt = null, float? radius = null)
         {
-            if (!CheckIsThirdPersonType(desiredType))
+            if (!IsThirdPersonType(desiredType))
             {
                 return;
             }
@@ -333,13 +333,13 @@ namespace MonoGameWorld.Camera
 
         public void SetThirdPersonLookAt(Vector3? lookAt)
         {
-            if (CheckIsThirdPersonType(CameraType))
+            if (IsThirdPersonType(CameraType))
             {
                 LookAt = lookAt;
             }
         }
 
-        private void CheckIsMoving()
+        private void SetIsMoving()
         {
             if ((oldOffset - Offset) != Vector3.Zero)
             {
@@ -353,7 +353,7 @@ namespace MonoGameWorld.Camera
             oldOffset = Offset;
         }
 
-        private bool CheckIsThirdPersonType(CameraType type)
+        private bool IsThirdPersonType(CameraType type)
         {
             if ((type == CameraType.ThirdPersonFree) || (type == CameraType.ThirdPersonFreeAlt) || (type == CameraType.ThirdPersonLocked))
             {
