@@ -14,7 +14,9 @@ namespace MonoGameWorld.HexGrid
         private double _minNoise = double.MaxValue;
         private double _maxNoise = double.MinValue;
 
-        private const int PerlinCoefficient = 100;
+        private const int PerlinCoefficient = 80;
+
+        private float waterHeight = 0.5f;
 
         private GraphicsDeviceManager graphics;
         private Vector3 rotation;
@@ -47,6 +49,8 @@ namespace MonoGameWorld.HexGrid
 
             this.graphics = graphics;
 
+            Position = Vector3.Zero;
+            Rotation = Vector3.Zero;
             Effect = new BasicEffect(graphics.GraphicsDevice);
 
             Radius = radius;
@@ -56,7 +60,7 @@ namespace MonoGameWorld.HexGrid
 
             foreach (var t in _sphereGrid.Tiles)
             {
-                var val = _perlin.GetMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 7, 2);
+                var val = _perlin.GetMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 5, 1.5);
 
                 _minNoise = Math.Min(_minNoise, val);
                 _maxNoise = Math.Max(_maxNoise, val);
@@ -64,14 +68,14 @@ namespace MonoGameWorld.HexGrid
 
             foreach (var t in _sphereGrid.Tiles)
             {
-                var val = _perlin.GetMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 7, 2);
+                var val = _perlin.GetMultioctave3DNoiseValue(t.X * PerlinCoefficient, t.Y * PerlinCoefficient, t.Z * PerlinCoefficient, 1, 5, 1.5);
                 val = (val - _minNoise) / (_maxNoise - _minNoise);
                 float fVal = (float)val;
 
                 t.Height = val;
 
                 // Ground
-                if (val > 0.5)
+                if (val > waterHeight)
                 {
                     if (val > 0.75)
                     {
@@ -173,7 +177,7 @@ namespace MonoGameWorld.HexGrid
                 else
                 {
                     // "Raised" tiles (top)
-                    float height = (float)(Radius + 0.5 * GroundHeight);
+                    float height = (float)(Radius + waterHeight * GroundHeight);
                     for (int j = 0; j < t.Corners.Length - 2; ++j)
                     {
                         vertices.Add(new VertexPositionColorTexture { Position = new Vector3(t.Corners[j + 2].X * height, t.Corners[j + 2].Y * height, t.Corners[j + 2].Z * height), Color = t.Color });
