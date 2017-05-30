@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace MonoGameWorld.Particles2D
+namespace MonoGameWorld.Particles._2D
 {
     public class ParticleEngine2D
     {

@@ -69,26 +69,6 @@ namespace Noise
 
             // return the content of the picked cell
             return gradientSet[index];
-
-            // ALTERNATIVE IMPLEMENTATION FOR 12 GRADIENT VECTORS
-
-            //index = permutationTable[index] & 11;
-
-            //switch (index)
-            //{
-            //   case 0: return new Vector3D(0, 1, 1);
-            //   case 1: return new Vector3D(0, 1, -1);
-            //   case 2: return new Vector3D(0, -1, 1);
-            //   case 3: return new Vector3D(0, -1, -1);
-            //   case 4: return new Vector3D(1, 0, 1);
-            //   case 5: return new Vector3D(1, 0, -1);
-            //   case 6: return new Vector3D(-1, 0, 1);
-            //   case 7: return new Vector3D(-1, 0, -1);
-            //   case 8: return new Vector3D(1, 1, 0);
-            //   case 9: return new Vector3D(1, -1, 0);
-            //   case 10: return new Vector3D(-1, 1, 0);
-            //   default: return new Vector3D(-1, -1, 0);
-            //}
         }
 
         private static int fastFloor(double d)
@@ -181,35 +161,20 @@ namespace Noise
             return nxyz;
         }
 
-        public static double getMultioctave3DNoiseValue(double x, double y, double z, uint startOctaveNumber, uint octaveCount)
+        public static double getMultioctave3DNoiseValue(double x, double y, double z, uint startOctaveNumber, uint octaveCount, double persistence)
         {
-            double res = 0;
+            double total = 0;
+            double frequency = fastPow(2, startOctaveNumber);
+            double amplitude = fastPow(persistence, startOctaveNumber);
+
             for (uint i = startOctaveNumber; i < (startOctaveNumber + octaveCount); ++i)
             {
-                var powOf2 = fastPow(2, i);
+                total += (amplitude * get3DNoiseValue(x / frequency, y / frequency, z / frequency));
 
-                res += (powOf2 * get3DNoiseValue(x / powOf2, y / powOf2, z / powOf2));
+                frequency *= 2;
+                amplitude *= persistence;
             }
-            return res;
-        }
-
-        public static double getMultioctave3DNoiseValueFromSphere(int x, int y, int z, uint startOctaveNumber, uint octaveCount, uint radius)
-        {
-            // convert to sphere coordinates
-            double d = fastPow(x, 2) + fastPow(y, 2) + fastPow(z, 2);
-
-            d = Math.Sqrt(d);
-
-            double zd = z / d;
-
-            double theta = Math.Acos(zd);
-            double phi = Math.Atan2(y, x);
-
-            double s_x = radius * Math.Sin(theta) * Math.Cos(phi);
-            double s_y = radius * Math.Sin(theta) * Math.Sin(phi);
-            double s_z = radius * Math.Cos(theta);
-
-            return getMultioctave3DNoiseValue(s_x, s_y, s_z, startOctaveNumber, octaveCount);
+            return total;
         }
     }
 }

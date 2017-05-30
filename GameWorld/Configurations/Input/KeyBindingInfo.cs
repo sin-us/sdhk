@@ -9,6 +9,7 @@ namespace MonoGameWorld.Configurations.Input
     public enum ActionType
     {
         None,
+        ToggleKeybindingsHint,
         CameraMoveForward,
         CameraMoveBackward,
         CameraMoveLeft,

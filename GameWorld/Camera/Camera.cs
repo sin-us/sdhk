@@ -17,6 +17,7 @@ namespace MonoGameWorld.Camera
     {
         private CameraType cameraType;
         private Quaternion rotation;
+        private Vector3 oldOffset;
 
         public CameraType CameraType
         {
@@ -40,7 +41,7 @@ namespace MonoGameWorld.Camera
         public Matrix ProjectionMatrix { get; set; }
         public Vector3 Offset { get; set; }
         public Quaternion Rotation { get => rotation; set => rotation = value; }
-        public Vector3? LookAt { get; set; }
+        public Vector3 LookAt { get; set; }
         public Vector3 Up { get; set; }
         public Vector3 XAxis { get; private set; }
         public Vector3 YAxis { get; private set; }
@@ -54,10 +55,12 @@ namespace MonoGameWorld.Camera
         public Single AspectRatio { get; set; }
         public float MovementVelocity { get; set; }
         public float RotationVelocity { get; set; }
+        public bool IsMoving { get; set; }
 
         public Camera(Single fov, Int32 width, Int32 height, Single znear, Single zfar)
         {
             Offset = Vector3.Zero;
+            oldOffset = Offset;
             LookAt = Vector3.Forward;
             Up = Vector3.UnitY;
             Rotation = Quaternion.Identity;
@@ -70,6 +73,7 @@ namespace MonoGameWorld.Camera
             CameraType = CameraType.Free;
             MovementVelocity = 10.0f;
             RotationVelocity = 50.0f;
+            IsMoving = false;
 
             Initialize();
         }
@@ -77,6 +81,7 @@ namespace MonoGameWorld.Camera
         public Camera(Vector3 position, Vector3 lookAt, Vector3 up, Single fov, Int32 width, Int32 height, Single znear, Single zfar)
         {
             Offset = position;
+            oldOffset = Offset;
             LookAt = lookAt;
             Up = up;
             Rotation = Quaternion.Identity;
@@ -89,6 +94,7 @@ namespace MonoGameWorld.Camera
             CameraType = CameraType.Free;
             MovementVelocity = 10.0f;
             RotationVelocity = 50.0f;
+            IsMoving = false;
 
             Initialize();
         }
@@ -114,9 +120,9 @@ namespace MonoGameWorld.Camera
         public void Update()
         {
             // check rotation quaternion normalization
-            if (!Mathematics.IsOne((Rotation.X * Rotation.X) + (Rotation.Y * Rotation.Y) + (Rotation.Z * Rotation.Z) + (Rotation.W * Rotation.W)))
+            if (!Mathematics.IsQuaternionNormalized(Rotation))
             {
-                Rotation = Quaternion.Normalize(Rotation);
+                Rotation.Normalize();
             }
 
             if (CameraType == CameraType.Free)
@@ -133,6 +139,25 @@ namespace MonoGameWorld.Camera
             }
 
             GetAxisFromViewMatrix();
+
+            // LookAt could be a change candidate (to Vector3? instead of Vector3) if 3rd person view functionality will be implemented.
+            // In this case it will no longer be -ZAxis, but the center of the folowed object.
+            LookAt = -ZAxis;
+            Up = YAxis;
+
+            LookAt.Normalize();
+            Up.Normalize();
+
+            if ((oldOffset - Offset) != Vector3.Zero)
+            {
+                IsMoving = true;
+            }
+            else
+            {
+                IsMoving = false;
+            }
+
+            oldOffset = Offset;
         }
 
         public void SetAbsoluteRotation(float angleX, float angleY, float angleZ)
@@ -183,6 +208,11 @@ namespace MonoGameWorld.Camera
             {
                 Rotation = Quaternion.Multiply(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(angle)), Rotation);
             }
+        }
+
+        public void SetAbsoluteTranslation(float positionX, float positionY, float positionZ)
+        {
+            Offset = new Vector3(positionX, positionY, positionZ);
         }
 
         public void MoveRelativeX(float relativeX)

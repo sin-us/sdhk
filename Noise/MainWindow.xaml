@@ -8,10 +8,18 @@
         Title="MainWindow" Height="900" Width="1200">
     <Grid>
         <Button x:Name="generateButton" Content="Generate" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="generateButton_Click"/>
-        <TextBox x:Name="seedTextBox" HorizontalAlignment="Left" Height="23" Margin="10,35,0,0" TextWrapping="Wrap" Text="1234567" VerticalAlignment="Top" Width="75"/>
-        <Label x:Name="labelMs" Content="Ms" HorizontalAlignment="Left" Margin="10,834,0,0" VerticalAlignment="Top" Width="43"/>
+        <TextBox x:Name="seedTextBox" HorizontalAlignment="Left" Height="23" Margin="10,61,0,0" TextWrapping="Wrap" Text="1234567" VerticalAlignment="Top" Width="75"/>
+        <Label x:Name="labelMs" Content="" HorizontalAlignment="Left" Margin="10,833,0,0" VerticalAlignment="Top" Width="43"/>
         <Image x:Name="noiseImage" Margin="98,10,10,10" />
-        <TextBox x:Name="powOf2TextBox" HorizontalAlignment="Left" Height="23" Margin="10,63,0,0" TextWrapping="Wrap" Text="7" VerticalAlignment="Top" Width="75"/>
-        <Label x:Name="sizeLabel" Content="Size" HorizontalAlignment="Left" Margin="10,296,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="halfSizeTextBox" HorizontalAlignment="Left" Height="23" Margin="10,115,0,0" TextWrapping="Wrap" Text="100" VerticalAlignment="Top" Width="75"/>
+        <Label Content="Seed:" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top"/>
+        <Label Content="Half size:" HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top"/>
+        <Label Content="Gen time(ms):" HorizontalAlignment="Left" Margin="10,807,0,0" VerticalAlignment="Top"/>
+        <Label Content="Octaves:" HorizontalAlignment="Left" Margin="10,197,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="octavesTextBox" HorizontalAlignment="Left" Height="23" Margin="10,223,0,0" TextWrapping="Wrap" Text="7" VerticalAlignment="Top" Width="75"/>
+        <Label Content="Persistance:" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="persistanceTextBox" HorizontalAlignment="Left" Height="23" Margin="10,277,0,0" TextWrapping="Wrap" Text="0,5" VerticalAlignment="Top" Width="75"/>
+        <Label Content="Start octave:" HorizontalAlignment="Left" Margin="10,143,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="startOctaveNumberTextBox" HorizontalAlignment="Left" Height="23" Margin="10,169,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="75"/>
     </Grid>
 </Window>

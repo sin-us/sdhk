@@ -21,15 +21,10 @@ namespace GameWorld
         private SpriteBatch spriteBatch;
         private Camera camera;
         private SpriteFont generalFont;
-        private BasicEffect sphereEffect;
-        private Vector3 spherePosition;
         private HexGrid _hexGrid;
-        private HexSphere _hexSphere;
+        private DrawableHexSphere _hexSphere;
         private bool isWireFrame;
-
-        private Model model;
-        private Matrix modelWorld;
-        private Vector3 modelPosition;
+        private bool isKeybindingsHintShown;
 
         private ControlPanelListener _controlPanelListener;
         private string _customText = string.Empty;
@@ -57,7 +52,7 @@ namespace GameWorld
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            camera = new Camera(new Vector3(0, 0, 10.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
+            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -66,16 +61,12 @@ namespace GameWorld
             winForm.Cursor = MouseManager.CustomCursor;
 
             isWireFrame = false;
+            isKeybindingsHintShown = false;
 
-            spherePosition = new Vector3(0, 0, 0);
-            sphereEffect = new BasicEffect(graphics.GraphicsDevice);
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
-            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+            _hexSphere = new DrawableHexSphere(graphics, 7);
+            _hexSphere.Effect.VertexColorEnabled = true;
 
-            modelPosition = new Vector3(0, 0, 0);
-
-            // Create a new SpriteBatch, which can be used to draw textures.
+            // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
@@ -89,14 +80,10 @@ namespace GameWorld
         /// </summary>
         protected override void LoadContent()
         {
-            // TODO: use this.Content to load your game content here
-            model = Content.Load<Model>("lava_cube");
-
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-            _hexSphere = new HexSphere(5);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
@@ -119,7 +106,6 @@ namespace GameWorld
         protected override void Update(GameTime gameTime)
         {
             // TODO: Add your update logic here
-
             FrameRateCounter.Update(gameTime);
             KeyboardManager.Update();
             MouseManager.Update();
@@ -134,7 +120,13 @@ namespace GameWorld
                 this.Exit();
             }
 
-            // Switch to/from wireframe mode
+            // Toggle keybindings hint
+            if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleKeybindingsHint))
+            {
+                isKeybindingsHintShown = !isKeybindingsHintShown;
+            }
+
+            // Toggle wireframe mode
             if (InputConfigManager.IsKeyBindingPressed(ActionType.ToggleWireframe))
             {
                 isWireFrame = !isWireFrame;
@@ -166,6 +158,19 @@ namespace GameWorld
                 graphics.ApplyChanges();
             }
 
+            HandleCameraInput();
+
+
+            _hexSphere.Update(camera.Offset);
+            /*sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
+            sphereEffect.View = camera.ViewMatrix;
+            sphereEffect.Projection = camera.ProjectionMatrix;*/
+
+            base.Update(gameTime);
+        }
+
+        private void HandleCameraInput()
+        {
             // Camera handling
             if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
             {
@@ -217,12 +222,6 @@ namespace GameWorld
             }
 
             camera.Update();
-            sphereEffect.World = Matrix.CreateTranslation(spherePosition - camera.Offset);
-            sphereEffect.View = camera.ViewMatrix;
-            sphereEffect.Projection = camera.ProjectionMatrix;
-            modelWorld = Matrix.CreateTranslation(modelPosition - camera.Offset);
-
-            base.Update(gameTime);
         }
 
         /// <summary>
@@ -231,23 +230,35 @@ namespace GameWorld
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkGray);
+            GraphicsDevice.Clear(Color.Black);
+
+            GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
-            DrawModel(model, modelWorld, camera.ViewMatrix, camera.ProjectionMatrix);
+            
+            // Hex Sphere
+            _hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
 
             string hintString = "";
 
-            foreach (var binding in InputConfigManager.Bindings.Bindings)
+            if (isKeybindingsHintShown)
             {
-                hintString += binding.Description + ": ";
-
-                if (binding.KeyBindingInfo.Key != null)
+                foreach (var binding in InputConfigManager.Bindings.Bindings)
                 {
-                    hintString += binding.KeyBindingInfo.Key.ToString();
-                }
+                    hintString += binding.Description + ": ";
 
-                hintString += "\n";
+                    if (binding.KeyBindingInfo.Key != null)
+                    {
+                        hintString += binding.KeyBindingInfo.Key.ToString();
+                    }
+
+                    hintString += "\n";
+                }
+            }
+            else
+            {
+                hintString = InputConfigManager.Bindings.GetBindingByAction(ActionType.ToggleKeybindingsHint).Description + ": " +
+                             InputConfigManager.Bindings.GetBindingByAction(ActionType.ToggleKeybindingsHint).KeyBindingInfo.Key.ToString();
             }
 
             // Show FPS
@@ -269,13 +280,13 @@ namespace GameWorld
                 {
                     effect.LightingEnabled = true;
                     effect.PreferPerPixelLighting = true;
-                    effect.AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f);
+                    effect.AmbientLightColor = new Vector3(0.1f, 0.0f, 0.0f);
                     effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
-                    effect.DirectionalLight0.DiffuseColor = new Vector3(0.7f, 0.7f, 0.7f);
+                    effect.DirectionalLight0.DiffuseColor = new Vector3(1.0f, 0.0f, 0.0f);
                     effect.FogEnabled = true;
-                    effect.FogColor = Color.DarkGray.ToVector3();
+                    effect.FogColor = Color.Black.ToVector3();
                     effect.FogStart = 8.0f;
-                    effect.FogEnd = 50.0f;
+                    effect.FogEnd = 80.0f;
                     effect.World = world;
                     effect.View = view;
                     effect.Projection = projection;
