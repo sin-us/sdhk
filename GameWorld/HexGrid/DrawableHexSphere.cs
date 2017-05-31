@@ -134,22 +134,22 @@ namespace MonoGameWorld.HexGrid
 
             tiles_heights.Sort();
 
-            if (0 > coveragePercent || 100 < coveragePercent)
+            if (coveragePercent < 0 || coveragePercent > 100)
             {
                 resultHeight = 0.5f;
             }
-            else if (0 == coveragePercent)
+            else if (coveragePercent == 0)
             {
                 resultHeight = 0.0f;
             }
-            else if (100 == coveragePercent)
+            else if (coveragePercent == 100)
             {
                 resultHeight = 1.0f;
             }
             else
             {
                 int index = (tiles_heights.Count * coveragePercent / 100) - 1;
-                if (0 < index)
+                if (index > 0)
                 {
                     resultHeight = tiles_heights[index];
                 }
