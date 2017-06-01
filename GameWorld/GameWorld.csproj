@@ -70,12 +70,13 @@
     <Compile Include="Configurations\Input\InputConfigManager.cs" />
     <Compile Include="Configurations\JsonFileManager.cs" />
     <Compile Include="Configurations\Input\KeyBindingInfo.cs" />
+    <Compile Include="Drawables\Plane\DrawablePlane.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="HexGrid\CustomTile.cs" />
+    <Compile Include="Drawables\HexGrid\CustomTile.cs" />
     <Compile Include="Inputs\Keyboard\KeyboardManager.cs" />
     <Compile Include="Inputs\Keyboard\KeyStatus.cs" />
-    <Compile Include="HexGrid\HexGrid.cs" />
-    <Compile Include="HexGrid\DrawableHexSphere.cs" />
+    <Compile Include="Drawables\HexGrid\HexGrid.cs" />
+    <Compile Include="Drawables\HexGrid\DrawableHexSphere.cs" />
     <Compile Include="Inputs\Mouse\ButtonStatus.cs" />
     <Compile Include="Inputs\Mouse\MouseManager.cs" />
     <Compile Include="Inputs\Mouse\MouseStatus.cs" />
@@ -106,6 +107,7 @@
     <Content Include="Content\Sparkle.png" />
     <Content Include="Content\TextureAtlasExample.png" />
     <Content Include="Content\HexGridTileset.png" />
+    <Content Include="Content\Wall.jpg" />
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
     <Content Include="Icon.ico" />
