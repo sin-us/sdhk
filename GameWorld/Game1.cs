@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameWorld.HexGrid;
+using MonoGameWorld.Drawables.Plane;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
@@ -25,6 +26,7 @@ namespace GameWorld
         private HexGrid _hexGrid;
         private DrawableHexSphere _hexSphere;
         private int _hexSphereIntersectionChecksCount;
+        private DrawablePlane drawablePlane;
         private bool isWireFrame;
         private bool isKeybindingsHintShown;
 
@@ -37,7 +39,8 @@ namespace GameWorld
             {
                 PreferredBackBufferWidth = 1280,
                 PreferredBackBufferHeight = 720,
-                SynchronizeWithVerticalRetrace = true
+                SynchronizeWithVerticalRetrace = true,
+                GraphicsProfile = GraphicsProfile.HiDef
             };
             this.IsFixedTimeStep = true;
             graphics.IsFullScreen = false;
@@ -55,7 +58,7 @@ namespace GameWorld
         {
             // TODO: Add your initialization logic here
             // zfar is decreased intentionally, because on large values Ray Vector becomes NaN
-            camera = new Camera(new Vector3(0, 0, 200.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
+            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -66,8 +69,11 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            _hexSphere = new DrawableHexSphere(graphics, 6, 50);
+            _hexSphere = new DrawableHexSphere(graphics, 7, 50);
             _hexSphere.Effect.VertexColorEnabled = true;
+            drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
+            drawablePlane.Position = new Vector3(50, 0, 0);
+            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-30), 0, 0);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -188,6 +194,7 @@ namespace GameWorld
 
 
             _hexSphere.Update(camera.Offset);
+            drawablePlane.Update(camera.Offset);
 
             base.Update(gameTime);
         }
@@ -277,6 +284,7 @@ namespace GameWorld
             
             // Hex Sphere
             _hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
 
             string hintString = "";
 
@@ -314,30 +322,6 @@ namespace GameWorld
             spriteBatch.End();
 
             base.Draw(gameTime);
-        }
-
-        private void DrawModel(Model model, Matrix world, Matrix view, Matrix projection)
-        {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.LightingEnabled = true;
-                    effect.PreferPerPixelLighting = true;
-                    effect.AmbientLightColor = new Vector3(0.1f, 0.0f, 0.0f);
-                    effect.DirectionalLight0.Direction = new Vector3(1.0f, 0, 0);
-                    effect.DirectionalLight0.DiffuseColor = new Vector3(1.0f, 0.0f, 0.0f);
-                    effect.FogEnabled = true;
-                    effect.FogColor = Color.Black.ToVector3();
-                    effect.FogStart = 8.0f;
-                    effect.FogEnd = 80.0f;
-                    effect.World = world;
-                    effect.View = view;
-                    effect.Projection = projection;
-                }
-
-                mesh.Draw();
-            }
         }
     }
 }
