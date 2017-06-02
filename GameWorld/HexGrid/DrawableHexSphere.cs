@@ -1,8 +1,11 @@
 ﻿using GameWorld.Gen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameWorld.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace MonoGameWorld.HexGrid
 {
@@ -17,7 +20,7 @@ namespace MonoGameWorld.HexGrid
         private const int PerlinCoefficient = 80;
 
         private double waterHeight = 0.5f;
-        private int desiredWaterCoveragePercent = 99;
+        private int desiredWaterCoveragePercent = 30;
 
         private GraphicsDeviceManager graphics;
         private Vector3 rotation;
@@ -40,9 +43,36 @@ namespace MonoGameWorld.HexGrid
         public int Radius { get; private set; }
         public int GroundHeight { get; private set; }
 
+        private CustomTile _selectedTile;
+        public CustomTile SelectedTile
+        {
+            get { return _selectedTile; }
+            private set
+            {
+                if (_selectedTile != null)
+                {
+                    foreach (var v in _selectedTile.VerticeIndices)
+                    {
+                        _vertices[v].Color = _selectedTile.Color;
+                    }
+                }
+
+                _selectedTile = value;
+
+                if (_selectedTile != null)
+                {
+                    foreach (var v in _selectedTile.VerticeIndices)
+                    {
+                        _vertices[v].Color = Color.Red;
+                    }
+                }
+            }
+        }
+
         public BasicEffect Effect { get; set; }
 
         private VertexPositionColorTexture[] _vertices;
+        private IntersectionCheckNode _intersectionChecker;
 
         public DrawableHexSphere(GraphicsDeviceManager graphics, int size, int radius = 30, int groundHeight = 8)
         {
@@ -108,6 +138,42 @@ namespace MonoGameWorld.HexGrid
             _sphereGrid.SouthPole.Color = Color.Red;
 
             InitializeVertices();
+        }
+
+        public void CheckIntersection(ref Ray ray, out int intersectChecksCount)
+        {
+            SelectedTile = null;
+
+            var candidates = _intersectionChecker.GetIntersectCandidates(ref ray, out intersectChecksCount);
+
+            if (candidates.Count > 0)
+            {
+                foreach (var t in candidates.OrderBy(c => c.Distance).Select(c => c.Tile))
+                {
+                    bool found = false;
+                    for (int i = 0; i < t.TopHexVerticeIndices.Length - 2; ++i)
+                    {
+                        intersectChecksCount++;
+
+                        if (Mathematics.RayIntersectsTriangle(
+                            ref ray, 
+                            ref _vertices[ t.TopHexVerticeIndices[i] ].Position, 
+                            ref _vertices[ t.TopHexVerticeIndices[i + 1] ].Position,
+                            ref _vertices[ t.TopHexVerticeIndices[i + 2] ].Position, 
+                            out float distance))
+                        {
+                            SelectedTile = t;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        break;
+                    }
+                }
+            }
         }
 
         public void SetRadius(int radius)
@@ -186,6 +252,8 @@ namespace MonoGameWorld.HexGrid
 
             foreach (var t in _sphereGrid.Tiles)
             {
+                int startingVerticesLength = vertices.Count;
+
                 // "0-level" tiles (bottom)
                 for (int j = 0; j < t.Corners.Length - 2; ++j)
                 {
@@ -194,6 +262,7 @@ namespace MonoGameWorld.HexGrid
                     vertices.Add(new VertexPositionColorTexture { Position = new Vector3(t.Corners[0].X * Radius, t.Corners[0].Y * Radius, t.Corners[0].Z * Radius), Color = t.Color });
                 }
 
+                // TODO: Remove code duplication
                 if (!t.IsWater)
                 {
                     // "Raised" tiles (top)
@@ -257,10 +326,187 @@ namespace MonoGameWorld.HexGrid
                     }
                 }
 
-
+                t.VerticeIndices = Enumerable.Repeat(startingVerticesLength, vertices.Count - startingVerticesLength).Select((value, index) => value + index).ToArray();
+                t.TopHexVerticeIndices = t.VerticeIndices.Skip((t.Corners.Length - 2) * 3).Take((t.Corners.Length - 2) * 3).ToArray();
+                t.BoundingBox = BoundingBox.CreateFromPoints(t.TopHexVerticeIndices.Select(vi => vertices[vi].Position));
             }
 
+
+            _intersectionChecker = IntersectionCheckNode.CreateFromTiles(_sphereGrid.Tiles, Radius + GroundHeight);
             _vertices = vertices.ToArray();
+        }
+
+        private class CustomTileIntersection
+        {
+            public CustomTile Tile { get; }
+
+            public float Distance { get; }
+
+            public CustomTileIntersection(CustomTile tile, float distance)
+            {
+                Tile = tile;
+                Distance = distance;
+            }
+        }
+
+        private class IntersectionCheckNode
+        {
+            private const int MaxDepth = 20;
+
+            public IntersectionCheckNode Left { get; private set; }
+
+            public IntersectionCheckNode Right { get; private set; }
+
+            public BoundingBox BoundingBox { get; private set; }
+
+            public List<CustomTile> Tiles { get; private set; }
+
+            public int? GetTotalTilesCount()
+            {
+                if (Tiles != null)
+                {
+                    return Tiles?.Count;
+                }
+
+                return (Left == null ? 0 : Left.GetTotalTilesCount()) + (Right == null ? 0 : Right.GetTotalTilesCount());
+            }
+
+            public List<CustomTileIntersection> GetIntersectCandidates(ref Ray ray, out int intersectChecksCount)
+            {
+                List<CustomTileIntersection> result = new List<CustomTileIntersection>();
+                intersectChecksCount = 0;
+
+                GetIntersectCandidates(ref ray, ref result, ref intersectChecksCount);
+
+                return result;
+            }
+
+            private void GetIntersectCandidates(ref Ray ray, ref List<CustomTileIntersection> candidates, ref int intersectChecksCount)
+            {
+                if (Tiles != null)
+                {
+                    foreach (var t in Tiles)
+                    {
+                        float? distance = ray.Intersects(t.BoundingBox);
+
+                        if (distance.HasValue)
+                        {
+                            candidates.Add(new CustomTileIntersection(t, distance.Value));
+                        }
+                    }
+                }
+                else
+                {
+                    float? distLarger = Left != null ? ray.Intersects(Left.BoundingBox) : null;
+                    float? distSmaller = Right != null ? ray.Intersects(Right.BoundingBox) : null;
+
+                    if (distLarger != null && distSmaller != null)
+                    {
+                        intersectChecksCount += 2;
+                        Left.GetIntersectCandidates(ref ray, ref candidates, ref intersectChecksCount);
+                        Right.GetIntersectCandidates(ref ray, ref candidates, ref intersectChecksCount);
+                    }
+                    else if (distLarger != null)
+                    {
+                        intersectChecksCount++;
+                        Left.GetIntersectCandidates(ref ray, ref candidates, ref intersectChecksCount);
+                    }
+                    else if (distSmaller != null)
+                    {
+                        intersectChecksCount++;
+                        Right.GetIntersectCandidates(ref ray, ref candidates, ref intersectChecksCount);
+                    }
+                }
+            }
+
+            private void AddTile(CustomTile tile, int currentDepth, ref BoundingBox box)
+            {
+                BoundingBox = box;
+
+                if (currentDepth >= MaxDepth)
+                {
+                    if (Tiles == null) { Tiles = new List<CustomTile>(); }
+
+                    Tiles.Add(tile);
+                }
+                else
+                {
+                    var dividedBoxes = DivideBoundingBox(ref box, currentDepth);
+
+                    var leftBoundingBox = dividedBoxes.Item1;
+                    var rightBoundingBox = dividedBoxes.Item2;
+
+                    var leftContainment = leftBoundingBox.Contains(tile.BoundingBox);
+                    var rightContainment = rightBoundingBox.Contains(tile.BoundingBox);
+
+                    if (leftContainment == ContainmentType.Contains || leftContainment == ContainmentType.Intersects)
+                    {
+                        if (Left == null) { Left = new IntersectionCheckNode(); }
+                        Left.AddTile(tile, currentDepth + 1, ref leftBoundingBox);
+                    }
+
+                    if (rightContainment == ContainmentType.Contains || rightContainment == ContainmentType.Intersects)
+                    {
+                        if (Right == null) { Right = new IntersectionCheckNode(); }
+                        Right.AddTile(tile, currentDepth + 1, ref rightBoundingBox);
+                    }
+                }
+            }
+
+            private static Tuple<BoundingBox, BoundingBox> DivideBoundingBox(ref BoundingBox box, int currentDepth)
+            {
+                switch (currentDepth % 3)
+                {
+                    case 0:
+                    default:
+                        return DivideBoundingBoxByX(ref box);
+                    case 1:
+                        return DivideBoundingBoxByY(ref box);
+                    case 2:
+                        return DivideBoundingBoxByZ(ref box);
+                }
+            }
+
+            private static Tuple<BoundingBox, BoundingBox> DivideBoundingBoxByX(ref BoundingBox box)
+            {
+                float newSize = (box.Max.X - box.Min.X) / 2.0f;
+
+                return Tuple.Create(
+                    new BoundingBox(box.Min, new Vector3(box.Max.X - newSize, box.Max.Y, box.Max.Z)),
+                    new BoundingBox(new Vector3(box.Min.X + newSize, box.Min.Y, box.Min.Z), box.Max));
+            }
+
+            private static Tuple<BoundingBox, BoundingBox> DivideBoundingBoxByY(ref BoundingBox box)
+            {
+                float newSize = (box.Max.Y - box.Min.Y) / 2.0f;
+
+                return Tuple.Create(
+                    new BoundingBox(box.Min, new Vector3(box.Max.X, box.Max.Y - newSize, box.Max.Z)),
+                    new BoundingBox(new Vector3(box.Min.X, box.Min.Y + newSize, box.Min.Z), box.Max));
+            }
+
+            private static Tuple<BoundingBox, BoundingBox> DivideBoundingBoxByZ(ref BoundingBox box)
+            {
+                float newSize = (box.Max.Z - box.Min.Z) / 2.0f;
+
+                return Tuple.Create(
+                    new BoundingBox(box.Min, new Vector3(box.Max.X, box.Max.Y, box.Max.Z - newSize)),
+                    new BoundingBox(new Vector3(box.Min.X, box.Min.Y, box.Min.Z + newSize), box.Max));
+            }
+
+            public static IntersectionCheckNode CreateFromTiles(ICollection<CustomTile> tiles, float maxRadius)
+            {
+                IntersectionCheckNode result = new IntersectionCheckNode();
+
+                var initialBoundingBox = new BoundingBox(new Vector3(-maxRadius, -maxRadius, -maxRadius), new Vector3(maxRadius, maxRadius, maxRadius));
+
+                foreach (CustomTile t in tiles)
+                {
+                    result.AddTile(t, 0, ref initialBoundingBox);
+                }
+
+                return result;
+            }
         }
     }
 }
