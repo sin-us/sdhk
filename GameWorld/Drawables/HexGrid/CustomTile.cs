@@ -13,6 +13,12 @@ namespace MonoGameWorld.HexGrid
 
         public bool IsWater { get; set; }
 
+        public BoundingBox BoundingBox { get; set; }
+
+        public int[] VerticeIndices { get; set; }
+
+        public int[] TopHexVerticeIndices { get; set; }
+
         public IEnumerable<CustomTile> Neighbours
         {
             get

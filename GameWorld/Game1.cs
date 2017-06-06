@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
 using MonoGameWorld.Configurations.Input;
+using System.Linq;
 
 namespace GameWorld
 {
@@ -24,6 +25,7 @@ namespace GameWorld
         private SpriteFont generalFont;
         private HexGrid _hexGrid;
         private DrawableHexSphere _hexSphere;
+        private int _hexSphereIntersectionChecksCount;
         private DrawablePlane drawablePlane;
         private bool isWireFrame;
         private bool isKeybindingsHintShown;
@@ -55,7 +57,8 @@ namespace GameWorld
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            camera = new Camera(new Vector3(0, 0, 100), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 100000000.0f);
+            // zfar is decreased intentionally, because on large values Ray Vector becomes NaN
+            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -66,7 +69,7 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            _hexSphere = new DrawableHexSphere(graphics, 7);
+            _hexSphere = new DrawableHexSphere(graphics, 7, 50);
             _hexSphere.Effect.VertexColorEnabled = true;
             drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
             drawablePlane.Position = new Vector3(50, 0, 0);
@@ -103,6 +106,26 @@ namespace GameWorld
         {
             // TODO: Unload any non ContentManager content here
         }
+
+
+        public Ray CalculateRay(Vector2 mouseLocation, Matrix view, Matrix projection, Matrix world, Viewport viewport)
+        {
+            Vector3 nearPoint = viewport.Unproject(new Vector3(mouseLocation.X, mouseLocation.Y, 0.0f),
+                    projection,
+                    view,
+                    world);
+
+            Vector3 farPoint = viewport.Unproject(new Vector3(mouseLocation.X, mouseLocation.Y, 1.0f),
+                    projection,
+                    view,
+                    world);
+
+            Vector3 direction = farPoint - nearPoint;
+            direction.Normalize();
+
+            return new Ray(nearPoint, direction);
+        }
+
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -165,6 +188,11 @@ namespace GameWorld
             }
 
             HandleCameraInput();
+
+            Ray mouseRay = CalculateRay(MouseManager.MouseStatus.Position.ToVector2(), camera.ViewMatrix, camera.ProjectionMatrix, _hexSphere.Effect.World, GraphicsDevice.Viewport);
+            _hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
+
+
             _hexSphere.Update(camera.Offset);
             drawablePlane.Update(camera.Offset);
 
@@ -287,6 +315,10 @@ namespace GameWorld
             spriteBatch.DrawString(generalFont, "Camera type: " + camera.CameraType.ToString(), new Vector2(10, 30), Color.White);
             spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 50), Color.White);
             spriteBatch.DrawString(generalFont, _customText, new Vector2(50, 10), Color.White);
+
+            spriteBatch.DrawString(generalFont, $"IntersectChecks: {_hexSphereIntersectionChecksCount}", new Vector2(10, 70), Color.White);
+            spriteBatch.DrawString(generalFont, $"Selected tile height: {_hexSphere.SelectedTile?.Height}", new Vector2(10, 90), Color.White);
+
             spriteBatch.End();
 
             base.Draw(gameTime);
