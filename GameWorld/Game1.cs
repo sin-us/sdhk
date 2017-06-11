@@ -193,7 +193,7 @@ namespace GameWorld
             _hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
 
 
-            _hexSphere.Update(camera.Offset);
+            _hexSphere.Update(gameTime, camera.Offset);
             drawablePlane.Update(camera.Offset);
 
             base.Update(gameTime);
@@ -208,15 +208,15 @@ namespace GameWorld
             }
             if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonMode))
             {
-                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.RotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFree, null, 200);
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFree, null, 200);
             }
             if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonAltMode))
             {
-                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.RotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFreeAlt, null, 200);
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFreeAlt, null, 200);
             }
             if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonLockedMode))
             {
-                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.RotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonLocked, null, 200);
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonLocked, null, 200);
             }
             if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
             {
@@ -281,7 +281,7 @@ namespace GameWorld
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
-            
+
             // Hex Sphere
             _hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
             drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
@@ -318,6 +318,8 @@ namespace GameWorld
 
             spriteBatch.DrawString(generalFont, $"IntersectChecks: {_hexSphereIntersectionChecksCount}", new Vector2(10, 70), Color.White);
             spriteBatch.DrawString(generalFont, $"Selected tile height: {_hexSphere.SelectedTile?.Height}", new Vector2(10, 90), Color.White);
+            spriteBatch.DrawString(generalFont, $"Selected tile brightness: {_hexSphere.SelectedTile?.Brightness}", new Vector2(10, 110), Color.White);
+            spriteBatch.DrawString(generalFont, $"Selected tile Long/Lat: {_hexSphere.SelectedTile?.Longitude} / {_hexSphere.SelectedTile?.Latitude}", new Vector2(10, 130), Color.White);
 
             spriteBatch.End();
 

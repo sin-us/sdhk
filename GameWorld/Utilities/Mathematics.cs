@@ -1,5 +1,6 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
+using VectorD = MathNet.Numerics.LinearAlgebra.Double.DenseVector;
 
 namespace MonoGameWorld.Utilities
 {
@@ -20,6 +21,11 @@ namespace MonoGameWorld.Utilities
         public static bool IsQuaternionNormalized(Quaternion quaternion)
         {
             return IsOne((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y) + (quaternion.Z * quaternion.Z) + (quaternion.W * quaternion.W));
+        }
+
+        public static Vector3 ToVector3(this VectorD vector)
+        {
+            return new Vector3((float)vector[0], (float)vector[1], (float)vector[2]);
         }
 
 

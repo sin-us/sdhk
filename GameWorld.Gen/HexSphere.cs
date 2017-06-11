@@ -2,7 +2,7 @@
 
 namespace GameWorld.Gen
 {
-    public class HexSphere<TTile, TCorner>
+    public abstract class HexSphere<TTile, TCorner>
         where TTile : HexSphereTile, new()
         where TCorner : HexSphereTileCorner, new()
     {
@@ -14,7 +14,7 @@ namespace GameWorld.Gen
 
         public TTile SouthPole { get; private set; }
 
-        public HexSphere(int size)
+        protected HexSphere(int size)
         {
             _grid = Grid<TTile, TCorner>.CreateSizeNGrid(size);
 
