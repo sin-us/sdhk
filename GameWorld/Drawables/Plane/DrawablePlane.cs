@@ -28,7 +28,7 @@ namespace MonoGameWorld.Drawables.Plane
         public Quaternion RotationQuaternion { get; private set; }
         public Matrix World { get; private set; }
         public Texture2D PlaneTexture { get; set; }
-        public BasicEffect Effect { get; set; }
+        public Effect Effect { get; set; }
         
         public DrawablePlane(GraphicsDeviceManager graphics, Texture2D planeTexture, int verticesWidth, int verticesHeight, float widthStep, float heightStep)
         {
@@ -36,7 +36,6 @@ namespace MonoGameWorld.Drawables.Plane
             Position = Vector3.Zero;
             Rotation = Vector3.Zero;
             PlaneTexture = planeTexture;
-            Effect = new BasicEffect(graphics.GraphicsDevice);
             Plane = new SimplePlane(verticesWidth, verticesHeight, widthStep, heightStep);
 
             FillVertices();
@@ -70,11 +69,9 @@ namespace MonoGameWorld.Drawables.Plane
 
         public void Draw(Matrix projection, Matrix view)
         {
-            Effect.Projection = projection;
-            Effect.View = view;
-            Effect.World = World;
-            Effect.Texture = PlaneTexture;
-            Effect.TextureEnabled = true;
+            Effect.Parameters["World"].SetValue(World);
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
 
             graphics.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             graphics.GraphicsDevice.Indices = indexBuffer;

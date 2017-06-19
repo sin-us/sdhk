@@ -87,3 +87,9 @@
 /processorParam:TextureFormat=Color
 /build:Wall.jpg
 
+#begin Fx/Ambient.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Fx/Ambient.fx
+

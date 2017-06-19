@@ -33,6 +33,8 @@ namespace GameWorld
         private ControlPanelListener _controlPanelListener;
         private string _customText = string.Empty;
 
+        private Effect effect;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this)
@@ -58,7 +60,7 @@ namespace GameWorld
         {
             // TODO: Add your initialization logic here
             // zfar is decreased intentionally, because on large values Ray Vector becomes NaN
-            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Forward, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
+            camera = new Camera(new Vector3(0, 100.0f, 100.0f), Vector3.Zero, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -69,11 +71,11 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            _hexSphere = new DrawableHexSphere(graphics, 7, 50);
-            _hexSphere.Effect.VertexColorEnabled = true;
+            //_hexSphere = new DrawableHexSphere(graphics, 7, 50);
+            //_hexSphere.Effect.VertexColorEnabled = true;
             drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
-            drawablePlane.Position = new Vector3(50, 0, 0);
-            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-30), 0, 0);
+            drawablePlane.Position = new Vector3(-25, 0, 0);
+            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -92,7 +94,12 @@ namespace GameWorld
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
-            _hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
+            effect = Content.Load<Effect>("Fx/Ambient");
+            effect.Parameters["AmbientColor"].SetValue(Color.Green.ToVector4());
+            effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+            drawablePlane.Effect = effect;
+
+            //_hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
 
             _controlPanelListener = ControlPanelListener.Create();
             _controlPanelListener.OnSetText += val => _customText = val;
@@ -106,26 +113,6 @@ namespace GameWorld
         {
             // TODO: Unload any non ContentManager content here
         }
-
-
-        public Ray CalculateRay(Vector2 mouseLocation, Matrix view, Matrix projection, Matrix world, Viewport viewport)
-        {
-            Vector3 nearPoint = viewport.Unproject(new Vector3(mouseLocation.X, mouseLocation.Y, 0.0f),
-                    projection,
-                    view,
-                    world);
-
-            Vector3 farPoint = viewport.Unproject(new Vector3(mouseLocation.X, mouseLocation.Y, 1.0f),
-                    projection,
-                    view,
-                    world);
-
-            Vector3 direction = farPoint - nearPoint;
-            direction.Normalize();
-
-            return new Ray(nearPoint, direction);
-        }
-
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -189,11 +176,10 @@ namespace GameWorld
 
             HandleCameraInput();
 
-            Ray mouseRay = CalculateRay(MouseManager.MouseStatus.Position.ToVector2(), camera.ViewMatrix, camera.ProjectionMatrix, _hexSphere.Effect.World, GraphicsDevice.Viewport);
-            _hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
-
-
-            _hexSphere.Update(gameTime, camera.Offset);
+            //Ray mouseRay = Mathematics.CalculateRay(MouseManager.MouseStatus.Position.ToVector2(), camera.ViewMatrix, camera.ProjectionMatrix, _hexSphere.Effect.World, GraphicsDevice.Viewport);
+            //_hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
+            
+            //_hexSphere.Update(gameTime, camera.Offset);
             drawablePlane.Update(camera.Offset);
 
             base.Update(gameTime);
@@ -208,7 +194,7 @@ namespace GameWorld
             }
             if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonMode))
             {
-                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFree, null, 200);
+                camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFree, new Vector3(300.0f, 0, 0), 200);
             }
             if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonAltMode))
             {
@@ -283,7 +269,7 @@ namespace GameWorld
             // Draw any meshes before the text in order for it to be on the top
 
             // Hex Sphere
-            _hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            //_hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
             drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
 
             string hintString = "";
@@ -316,10 +302,10 @@ namespace GameWorld
             spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 50), Color.White);
             spriteBatch.DrawString(generalFont, _customText, new Vector2(50, 10), Color.White);
 
-            spriteBatch.DrawString(generalFont, $"IntersectChecks: {_hexSphereIntersectionChecksCount}", new Vector2(10, 70), Color.White);
-            spriteBatch.DrawString(generalFont, $"Selected tile height: {_hexSphere.SelectedTile?.Height}", new Vector2(10, 90), Color.White);
-            spriteBatch.DrawString(generalFont, $"Selected tile brightness: {_hexSphere.SelectedTile?.Brightness}", new Vector2(10, 110), Color.White);
-            spriteBatch.DrawString(generalFont, $"Selected tile Long/Lat: {_hexSphere.SelectedTile?.Longitude} / {_hexSphere.SelectedTile?.Latitude}", new Vector2(10, 130), Color.White);
+            //spriteBatch.DrawString(generalFont, $"IntersectChecks: {_hexSphereIntersectionChecksCount}", new Vector2(10, 70), Color.White);
+            //spriteBatch.DrawString(generalFont, $"Selected tile height: {_hexSphere.SelectedTile?.Height}", new Vector2(10, 90), Color.White);
+            //spriteBatch.DrawString(generalFont, $"Selected tile brightness: {_hexSphere.SelectedTile?.Brightness}", new Vector2(10, 110), Color.White);
+            //spriteBatch.DrawString(generalFont, $"Selected tile Long/Lat: {_hexSphere.SelectedTile?.Longitude} / {_hexSphere.SelectedTile?.Latitude}", new Vector2(10, 130), Color.White);
 
             spriteBatch.End();
 

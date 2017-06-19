@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using VectorD = MathNet.Numerics.LinearAlgebra.Double.DenseVector;
 
@@ -28,6 +29,23 @@ namespace MonoGameWorld.Utilities
             return new Vector3((float)vector[0], (float)vector[1], (float)vector[2]);
         }
 
+        public static Ray CalculateRay(Vector2 mouseLocation, Matrix view, Matrix projection, Matrix world, Viewport viewport)
+        {
+            Vector3 nearPoint = viewport.Unproject(new Vector3(mouseLocation.X, mouseLocation.Y, 0.0f),
+                    projection,
+                    view,
+                    world);
+
+            Vector3 farPoint = viewport.Unproject(new Vector3(mouseLocation.X, mouseLocation.Y, 1.0f),
+                    projection,
+                    view,
+                    world);
+
+            Vector3 direction = farPoint - nearPoint;
+            direction.Normalize();
+
+            return new Ray(nearPoint, direction);
+        }
 
         // Thanks to SharpDX.Mathematics/MathUtil.cs
         public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out float distance)

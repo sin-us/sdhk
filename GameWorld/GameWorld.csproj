@@ -70,6 +70,7 @@
     <Compile Include="Configurations\Input\InputConfigManager.cs" />
     <Compile Include="Configurations\JsonFileManager.cs" />
     <Compile Include="Configurations\Input\KeyBindingInfo.cs" />
+    <Content Include="Content\Fx\Ambient.fx" />
     <Compile Include="Drawables\HexGrid\CustomHexSphere.cs" />
     <Compile Include="Drawables\Plane\DrawablePlane.cs" />
     <Compile Include="Drawables\VertexPositionColorNormal.cs" />
