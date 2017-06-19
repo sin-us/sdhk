@@ -1,7 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoGameWorld.Drawables
+namespace MonoGameWorld.Drawables.VertexTypes
 {
     public struct VertexPositionColorNormal
     {

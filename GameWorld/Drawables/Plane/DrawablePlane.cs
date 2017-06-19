@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGameWorld.Drawables.VertexTypes;
 using System.Collections.Generic;
 using SimplePlane = GameWorld.Gen.PlaneGenerator.Plane;
 
@@ -9,7 +10,7 @@ namespace MonoGameWorld.Drawables.Plane
     {
         private GraphicsDeviceManager graphics;
         private Vector3 rotation;
-        private VertexPositionColorTexture[] vertices;
+        private VertexPositionColorNormalTexture[] vertices;        
         private VertexBuffer vertexBuffer;
         private IndexBuffer indexBuffer;
 
@@ -29,7 +30,7 @@ namespace MonoGameWorld.Drawables.Plane
         public Matrix World { get; private set; }
         public Texture2D PlaneTexture { get; set; }
         public Effect Effect { get; set; }
-        
+
         public DrawablePlane(GraphicsDeviceManager graphics, Texture2D planeTexture, int verticesWidth, int verticesHeight, float widthStep, float heightStep)
         {
             this.graphics = graphics;
@@ -40,7 +41,7 @@ namespace MonoGameWorld.Drawables.Plane
 
             FillVertices();
 
-            vertexBuffer = new VertexBuffer(graphics.GraphicsDevice, typeof(VertexPositionColorTexture), vertices.Length, BufferUsage.None);
+            vertexBuffer = new VertexBuffer(graphics.GraphicsDevice, typeof(VertexPositionColorNormalTexture), vertices.Length, BufferUsage.None);
             vertexBuffer.SetData(vertices);
 
             indexBuffer = new IndexBuffer(graphics.GraphicsDevice, typeof(int), Plane.Indeces.Count, BufferUsage.None);
@@ -49,14 +50,15 @@ namespace MonoGameWorld.Drawables.Plane
 
         private void FillVertices()
         {
-            var vertexList = new List<VertexPositionColorTexture>();
+            var vertexList = new List<VertexPositionColorNormalTexture>();
 
             for (int i = 0; i < Plane.Vertices.Count; ++i)
             {
                 Vector3 position = new Vector3((float)Plane.Vertices[i].X, (float)Plane.Vertices[i].Y, (float)Plane.Vertices[i].Z);
                 Color color = Color.Green;
+                Vector3 normal = Vector3.Forward;
                 Vector2 textureCoordinates = new Vector2((float)Plane.Vertices[i].TextureX, (float)Plane.Vertices[i].TextureY);
-                vertexList.Add(new VertexPositionColorTexture { Position = position, Color = color, TextureCoordinate = textureCoordinates });
+                vertexList.Add(new VertexPositionColorNormalTexture { Position = position, Color = color, Normal = normal, TextureCoordinates = textureCoordinates });
             }
 
             vertices = vertexList.ToArray();            
@@ -72,6 +74,9 @@ namespace MonoGameWorld.Drawables.Plane
             Effect.Parameters["World"].SetValue(World);
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
+
+            Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(World));
+            Effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
 
             graphics.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             graphics.GraphicsDevice.Indices = indexBuffer;

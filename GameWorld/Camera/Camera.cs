@@ -19,7 +19,6 @@ namespace MonoGameWorld.Camera
         private Vector3 oldOffset;
         private Quaternion hostRotation;
         private Vector3 hostPosition;
-        private Vector3? focusAt;
 
         public CameraType CameraType { get; private set; }
         public Matrix ViewMatrix { get; private set; }

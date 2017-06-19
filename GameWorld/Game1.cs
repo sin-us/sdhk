@@ -60,7 +60,7 @@ namespace GameWorld
         {
             // TODO: Add your initialization logic here
             // zfar is decreased intentionally, because on large values Ray Vector becomes NaN
-            camera = new Camera(new Vector3(0, 100.0f, 100.0f), Vector3.Zero, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
+            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Zero, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -75,7 +75,7 @@ namespace GameWorld
             //_hexSphere.Effect.VertexColorEnabled = true;
             drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
             drawablePlane.Position = new Vector3(-25, 0, 0);
-            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
+            //drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -94,11 +94,9 @@ namespace GameWorld
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
-            effect = Content.Load<Effect>("Fx/Ambient");
-            effect.Parameters["AmbientColor"].SetValue(Color.Green.ToVector4());
-            effect.Parameters["AmbientIntensity"].SetValue(0.1f);
+            effect = Content.Load<Effect>("Fx/Diffuse");
             drawablePlane.Effect = effect;
-
+            
             //_hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
 
             _controlPanelListener = ControlPanelListener.Create();
@@ -178,8 +176,9 @@ namespace GameWorld
 
             //Ray mouseRay = Mathematics.CalculateRay(MouseManager.MouseStatus.Position.ToVector2(), camera.ViewMatrix, camera.ProjectionMatrix, _hexSphere.Effect.World, GraphicsDevice.Viewport);
             //_hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
-            
+
             //_hexSphere.Update(gameTime, camera.Offset);
+            drawablePlane.Rotation += new Vector3(0, 0.01f, 0);
             drawablePlane.Update(camera.Offset);
 
             base.Update(gameTime);

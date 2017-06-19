@@ -71,9 +71,11 @@
     <Compile Include="Configurations\JsonFileManager.cs" />
     <Compile Include="Configurations\Input\KeyBindingInfo.cs" />
     <Content Include="Content\Fx\Ambient.fx" />
+    <Content Include="Content\Fx\Diffuse.fx" />
     <Compile Include="Drawables\HexGrid\CustomHexSphere.cs" />
     <Compile Include="Drawables\Plane\DrawablePlane.cs" />
-    <Compile Include="Drawables\VertexPositionColorNormal.cs" />
+    <Compile Include="Drawables\VertexTypes\VertexPositionColorNormal.cs" />
+    <Compile Include="Drawables\VertexTypes\VertexPositionColorNormalTexture.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Drawables\HexGrid\CustomTile.cs" />
     <Compile Include="Inputs\Keyboard\KeyboardManager.cs" />

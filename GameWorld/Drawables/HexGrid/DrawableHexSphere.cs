@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGameWorld.Drawables;
+using MonoGameWorld.Drawables.VertexTypes;
 using MonoGameWorld.Utilities;
 using System;
 using System.Collections.Generic;
