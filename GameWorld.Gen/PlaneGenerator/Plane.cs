@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using VectorD = MathNet.Numerics.LinearAlgebra.Double.DenseVector;
 
 namespace GameWorld.Gen.PlaneGenerator
 {
@@ -24,8 +23,7 @@ namespace GameWorld.Gen.PlaneGenerator
     public class Plane
     {
         public List<VertexData> Vertices { get; private set; }
-        public List<int> Indeces { get; private set; }
-        public List<VectorD> TextureCoordinates { get; set; }
+        public List<int> Indices { get; private set; }
         public int WidthInVertices { get; set; }
         public int HeightInVertices { get; set; }
         public float WidthStep { get; set; }
@@ -39,7 +37,7 @@ namespace GameWorld.Gen.PlaneGenerator
             HeightStep = heightStep;
 
             Vertices = new List<VertexData>();
-            Indeces = new List<int>();
+            Indices = new List<int>();
 
             for (int i = 0; i < (widthInVertices * heightInVertices); ++i)
             {
@@ -58,14 +56,14 @@ namespace GameWorld.Gen.PlaneGenerator
                 if ((column < (widthInVertices - 1)) && (i < (widthInVertices * (heightInVertices - 1))))
                 {
                     // first triangle in pair
-                    Indeces.Add(i);
-                    Indeces.Add(i + widthInVertices);
-                    Indeces.Add(i + 1);
+                    Indices.Add(i);
+                    Indices.Add(i + widthInVertices);
+                    Indices.Add(i + 1);
 
                     // second triangle in pair
-                    Indeces.Add(i + 1);
-                    Indeces.Add(i + widthInVertices);
-                    Indeces.Add(i + widthInVertices + 1);
+                    Indices.Add(i + 1);
+                    Indices.Add(i + widthInVertices);
+                    Indices.Add(i + widthInVertices + 1);
                 }
             }
         }

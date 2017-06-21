@@ -6,11 +6,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameWorld.HexGrid;
 using MonoGameWorld.Drawables.Plane;
+using MonoGameWorld.Drawables.Sphere;
 using System.Windows.Forms;
 using MonoGameWorld.Camera;
 using GameWorld.Shared;
 using MonoGameWorld.Configurations.Input;
-using System.Linq;
 
 namespace GameWorld
 {
@@ -27,6 +27,7 @@ namespace GameWorld
         private DrawableHexSphere _hexSphere;
         private int _hexSphereIntersectionChecksCount;
         private DrawablePlane drawablePlane;
+        private DrawableSphere drawableSphere;
         private bool isWireFrame;
         private bool isKeybindingsHintShown;
 
@@ -73,9 +74,11 @@ namespace GameWorld
 
             //_hexSphere = new DrawableHexSphere(graphics, 7, 50);
             //_hexSphere.Effect.VertexColorEnabled = true;
-            drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
-            drawablePlane.Position = new Vector3(-25, 0, 0);
+            //drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
+            //drawablePlane.Position = new Vector3(-25, 0, 0);
             //drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
+
+            drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Wall"), 10.0f, 16);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -94,8 +97,9 @@ namespace GameWorld
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
-            effect = Content.Load<Effect>("Fx/Diffuse");
-            drawablePlane.Effect = effect;
+            effect = Content.Load<Effect>("Fx/Textured");
+            //drawablePlane.Effect = effect;
+            drawableSphere.Effect = effect;
             
             //_hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
 
@@ -178,8 +182,11 @@ namespace GameWorld
             //_hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
 
             //_hexSphere.Update(gameTime, camera.Offset);
-            drawablePlane.Rotation += new Vector3(0, 0.01f, 0);
-            drawablePlane.Update(camera.Offset);
+            //drawablePlane.Rotation += new Vector3(0, 0.01f, 0);
+            //drawablePlane.Update(camera.Offset);
+            //drawableSphere.Rotation += new Vector3(0, 0.005f, 0);
+            //drawableSphere.Position += new Vector3(0.005f, 0, 0);
+            drawableSphere.Update(camera.Offset);
 
             base.Update(gameTime);
         }
@@ -269,7 +276,8 @@ namespace GameWorld
 
             // Hex Sphere
             //_hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
-            drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            //drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            drawableSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
 
             string hintString = "";
 
