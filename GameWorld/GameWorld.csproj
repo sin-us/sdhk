@@ -112,6 +112,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Earth8k.jpg" />
+    <Content Include="Content\Fx\SpecularPerPixel.fx" />
     <Content Include="Content\Fx\Textured.fx" />
     <Content Include="Content\Sparkle.png" />
     <Content Include="Content\TextureAtlasExample.png" />

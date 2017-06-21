@@ -87,9 +87,21 @@
 /processorParam:TextureFormat=Color
 /build:Wall.jpg
 
-#begin Fx/Textured.fx
+#begin Earth8k.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Earth8k.jpg
+
+#begin Fx/SpecularPerPixel.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Fx/Textured.fx
+/build:Fx/SpecularPerPixel.fx
 

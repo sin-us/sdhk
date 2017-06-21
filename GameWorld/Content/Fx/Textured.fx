@@ -49,10 +49,10 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.Position = mul(viewPosition, Projection);
 
     float4 normal = mul(input.Normal, WorldInverseTranspose);
-    float lightIntensity = dot(normal, DiffuseLightDirection);
+    float lightIntensity = dot((float3)normal, DiffuseLightDirection);
     output.Color = saturate(DiffuseColor * DiffuseIntensity * lightIntensity);
     
-    output.Normal = input.Normal;
+    output.Normal = (float3)input.Normal;
     output.TextureCoordinate = input.TextureCoordinate;
 
     return output;
@@ -74,11 +74,11 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     return saturate(textureColor * input.Color + AmbientColor * AmbientIntensity + specular);
 }
 
-technique Diffuse
+technique Textured
 {
     pass Pass1
     {
-        VertexShader = compile vs_4_0 VertexShaderFunction();
-        PixelShader = compile ps_4_0 PixelShaderFunction();
+        VertexShader = compile vs_5_0 VertexShaderFunction();
+        PixelShader = compile ps_5_0 PixelShaderFunction();
     }
 }

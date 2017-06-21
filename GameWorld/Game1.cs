@@ -36,6 +36,18 @@ namespace GameWorld
 
         private Effect effect;
 
+        private Vector4 GlobalAmbient;
+
+        private Vector3 LightDirection;
+        private Vector4 LightAmbient;
+        private Vector4 LightDiffuse;
+        private Vector4 LightSpecular;
+
+        private Vector4 MaterialAmbient;
+        private Vector4 MaterialDiffuse;
+        private Vector4 MaterialSpecular;
+        private float MaterialShininess;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this)
@@ -78,12 +90,24 @@ namespace GameWorld
             //drawablePlane.Position = new Vector3(-25, 0, 0);
             //drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
 
-            drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Wall"), 10.0f, 16);
+            drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Earth8k"), 50.0f, 32);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
+
+            GlobalAmbient = new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+
+            LightDirection = new Vector3(-1.0f, 0.0f, -0.5f);
+            LightAmbient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            LightDiffuse = new Vector4(1.0f, 1.0f, 0.95f, 1.0f);
+            LightSpecular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+
+            MaterialAmbient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            MaterialDiffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            MaterialSpecular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            MaterialShininess = 0.0f;
 
             base.Initialize();
         }
@@ -97,10 +121,28 @@ namespace GameWorld
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
-            effect = Content.Load<Effect>("Fx/Textured");
+            effect = Content.Load<Effect>("Fx/SpecularPerPixel");
             //drawablePlane.Effect = effect;
-            drawableSphere.Effect = effect;
             
+            // Set the shader global ambiance parameters.
+            effect.Parameters["GlobalAmbient"].SetValue(GlobalAmbient);
+
+            // Set the shader lighting parameters.
+            effect.Parameters["LightDirection"].SetValue(LightDirection);
+            effect.Parameters["LightAmbient"].SetValue(LightAmbient);
+            effect.Parameters["LightDiffuse"].SetValue(LightDiffuse);
+            effect.Parameters["LightSpecular"].SetValue(LightSpecular);
+            
+            // Set the shader material parameters.
+            effect.Parameters["MaterialAmbient"].SetValue(MaterialAmbient);
+            effect.Parameters["MaterialDiffuse"].SetValue(MaterialDiffuse);
+            effect.Parameters["MaterialSpecular"].SetValue(MaterialSpecular);
+            effect.Parameters["MaterialShininess"].SetValue(MaterialShininess);
+
+            effect.Parameters["Texture"].SetValue(drawableSphere.SphereTexture);
+
+            drawableSphere.Effect = effect;
+
             //_hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
 
             _controlPanelListener = ControlPanelListener.Create();
@@ -184,7 +226,7 @@ namespace GameWorld
             //_hexSphere.Update(gameTime, camera.Offset);
             //drawablePlane.Rotation += new Vector3(0, 0.01f, 0);
             //drawablePlane.Update(camera.Offset);
-            //drawableSphere.Rotation += new Vector3(0, 0.005f, 0);
+            drawableSphere.Rotation += new Vector3(0, 0.001f, 0);
             //drawableSphere.Position += new Vector3(0.005f, 0, 0);
             drawableSphere.Update(camera.Offset);
 

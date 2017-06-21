@@ -71,17 +71,13 @@ namespace MonoGameWorld.Drawables.Sphere
 
         public void Draw(Matrix projection, Matrix view)
         {
+            Matrix WorldInverseTranspose = Matrix.Transpose(Matrix.Invert(World));
+            Matrix worldViewProjection = World * view * projection;
+            
+            // Set shader matrix parameters.
             Effect.Parameters["World"].SetValue(World);
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
-
-            Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(World));
-            Effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
-
-            Vector3 viewVector = view.Forward;
-            Effect.Parameters["ViewVector"].SetValue(viewVector);
-
-            Effect.Parameters["ModelTexture"].SetValue(SphereTexture);
+            Effect.Parameters["WorldInverseTranspose"].SetValue(WorldInverseTranspose);
+            Effect.Parameters["WorldViewProjection"].SetValue(worldViewProjection);
 
             graphics.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             graphics.GraphicsDevice.Indices = indexBuffer;
