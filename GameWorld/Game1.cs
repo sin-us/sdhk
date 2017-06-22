@@ -19,34 +19,51 @@ namespace GameWorld
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        private struct Light
+        {
+            public enum LightType
+            {
+                DirectionalLight,
+                PointLight,
+                SpotLight
+            }
+
+            public LightType Type;
+            public Vector3 Direction;
+            public Vector3 Position;
+            public Vector4 Ambient;
+            public Vector4 Diffuse;
+            public Vector4 Specular;
+            public float SpotInnerConeRadians;
+            public float SpotOuterConeRadians;
+            public float Radius;
+        }
+
+        private struct Material
+        {
+            public Vector4 Ambient;
+            public Vector4 Diffuse;
+            public Vector4 Specular;
+            public float Shininess;
+        }
+
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private Camera camera;
         private SpriteFont generalFont;
-        private HexGrid _hexGrid;
-        private DrawableHexSphere _hexSphere;
-        private int _hexSphereIntersectionChecksCount;
         private DrawablePlane drawablePlane;
         private DrawableSphere drawableSphere;
         private bool isWireFrame;
         private bool isKeybindingsHintShown;
 
-        private ControlPanelListener _controlPanelListener;
-        private string _customText = string.Empty;
-
         private Effect effect;
 
-        private Vector4 GlobalAmbient;
+        private Vector4 globalAmbient;
 
-        private Vector3 LightDirection;
-        private Vector4 LightAmbient;
-        private Vector4 LightDiffuse;
-        private Vector4 LightSpecular;
+        private Light light;
+        private Material material;
 
-        private Vector4 MaterialAmbient;
-        private Vector4 MaterialDiffuse;
-        private Vector4 MaterialSpecular;
-        private float MaterialShininess;
+        private Vector3 ld;
 
         public Game1()
         {
@@ -84,30 +101,34 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            //_hexSphere = new DrawableHexSphere(graphics, 7, 50);
-            //_hexSphere.Effect.VertexColorEnabled = true;
-            //drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
-            //drawablePlane.Position = new Vector3(-25, 0, 0);
-            //drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
+            drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
+            drawablePlane.Position = new Vector3(-25, -25, 0);
+            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
 
-            drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Earth8k"), 50.0f, 32);
+            ld = Vector3.Zero;
+
+            //drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Earth8k"), 50.0f, 32);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
 
-            GlobalAmbient = new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+            globalAmbient = new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+            light.Type = Light.LightType.SpotLight;
+            light.Direction = new Vector3(-1.0f, 0.0f, -0.5f);
+            light.Position = Vector3.Zero;
+            light.Ambient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            light.Diffuse = new Vector4(1.0f, 1.0f, 0.95f, 1.0f);
+            light.Specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            light.SpotInnerConeRadians = MathHelper.ToRadians(20.0f);
+            light.SpotOuterConeRadians = MathHelper.ToRadians(80.0f);
+            light.Radius = 100.0f;
 
-            LightDirection = new Vector3(-1.0f, 0.0f, -0.5f);
-            LightAmbient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-            LightDiffuse = new Vector4(1.0f, 1.0f, 0.95f, 1.0f);
-            LightSpecular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-
-            MaterialAmbient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-            MaterialDiffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-            MaterialSpecular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-            MaterialShininess = 0.0f;
+            material.Ambient = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
+            material.Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            material.Specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            material.Shininess = 0.0f;
 
             base.Initialize();
         }
@@ -121,32 +142,53 @@ namespace GameWorld
             // set up font
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
-            effect = Content.Load<Effect>("Fx/SpecularPerPixel");
+            effect = Content.Load<Effect>("Fx/PerPixelLighting");
             //drawablePlane.Effect = effect;
-            
+
+            effect.Parameters["CameraPosition"].SetValue(Vector3.Zero);
+
             // Set the shader global ambiance parameters.
-            effect.Parameters["GlobalAmbient"].SetValue(GlobalAmbient);
+            effect.Parameters["GlobalAmbient"].SetValue(globalAmbient);
 
             // Set the shader lighting parameters.
-            effect.Parameters["LightDirection"].SetValue(LightDirection);
-            effect.Parameters["LightAmbient"].SetValue(LightAmbient);
-            effect.Parameters["LightDiffuse"].SetValue(LightDiffuse);
-            effect.Parameters["LightSpecular"].SetValue(LightSpecular);
-            
-            // Set the shader material parameters.
-            effect.Parameters["MaterialAmbient"].SetValue(MaterialAmbient);
-            effect.Parameters["MaterialDiffuse"].SetValue(MaterialDiffuse);
-            effect.Parameters["MaterialSpecular"].SetValue(MaterialSpecular);
-            effect.Parameters["MaterialShininess"].SetValue(MaterialShininess);
+            effect.Parameters["LightDirection"].SetValue(light.Direction);
+            effect.Parameters["LightPosition"].SetValue(light.Position);
+            effect.Parameters["LightAmbient"].SetValue(light.Ambient);
+            effect.Parameters["LightDiffuse"].SetValue(light.Diffuse);
+            effect.Parameters["LightSpecular"].SetValue(light.Specular);
+            effect.Parameters["LightSpotInnerCone"].SetValue(light.SpotInnerConeRadians);
+            effect.Parameters["LightSpotOuterCone"].SetValue(light.SpotOuterConeRadians);
+            effect.Parameters["LightRadius"].SetValue(light.Radius);
 
-            effect.Parameters["Texture"].SetValue(drawableSphere.SphereTexture);
+            // Set the shader material parameters.
+            effect.Parameters["MaterialAmbient"].SetValue(material.Ambient);
+            effect.Parameters["MaterialDiffuse"].SetValue(material.Diffuse);
+            effect.Parameters["MaterialSpecular"].SetValue(material.Specular);
+            effect.Parameters["MaterialShininess"].SetValue(material.Shininess);
+
+            // Bind the texture map to the shader.
+            //effect.Parameters["Texture"].SetValue(drawableSphere.SphereTexture);
+            effect.Parameters["Texture"].SetValue(drawablePlane.PlaneTexture);
+
+            switch (light.Type)
+            {
+                case Light.LightType.DirectionalLight:
+                    effect.CurrentTechnique = effect.Techniques["PerPixelDirectionalLighting"];
+                    break;
+
+                case Light.LightType.PointLight:
+                    effect.CurrentTechnique = effect.Techniques["PerPixelPointLighting"];
+                    break;
+
+                case Light.LightType.SpotLight:
+                    effect.CurrentTechnique = effect.Techniques["PerPixelSpotLighting"];
+                    break;
+
+                default:
+                    break;
+            }
 
             drawableSphere.Effect = effect;
-
-            //_hexGrid = new HexGrid(Content.Load<Texture2D>("HexGridTileset"), 50, 100, 87);
-
-            _controlPanelListener = ControlPanelListener.Create();
-            _controlPanelListener.OnSetText += val => _customText = val;
         }
 
         /// <summary>
@@ -220,15 +262,9 @@ namespace GameWorld
 
             HandleCameraInput();
 
-            //Ray mouseRay = Mathematics.CalculateRay(MouseManager.MouseStatus.Position.ToVector2(), camera.ViewMatrix, camera.ProjectionMatrix, _hexSphere.Effect.World, GraphicsDevice.Viewport);
-            //_hexSphere.CheckIntersection(ref mouseRay, out _hexSphereIntersectionChecksCount);
-
-            //_hexSphere.Update(gameTime, camera.Offset);
-            //drawablePlane.Rotation += new Vector3(0, 0.01f, 0);
-            //drawablePlane.Update(camera.Offset);
-            drawableSphere.Rotation += new Vector3(0, 0.001f, 0);
-            //drawableSphere.Position += new Vector3(0.005f, 0, 0);
-            drawableSphere.Update(camera.Offset);
+            drawablePlane.Update(camera.Offset);
+            //drawableSphere.Rotation += new Vector3(0, 0.001f, 0);
+            //drawableSphere.Update(camera.Offset);
 
             base.Update(gameTime);
         }
@@ -240,7 +276,7 @@ namespace GameWorld
             {
                 camera.SetFreeCamera();
             }
-            if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonMode))
+            /*if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonMode))
             {
                 camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonFree, new Vector3(300.0f, 0, 0), 200);
             }
@@ -251,7 +287,7 @@ namespace GameWorld
             if (InputConfigManager.IsKeyBindingPressed(ActionType.SwitchCameraThirdPersonLockedMode))
             {
                 camera.SetThirdPersonCamera(_hexSphere.Position, _hexSphere.AxisRotationQuaternion, new Vector3(0, 0, 0), CameraType.ThirdPersonLocked, null, 200);
-            }
+            }*/
             if (InputConfigManager.IsKeyBindingDown(ActionType.CameraMoveForward))
             {
                 camera.MoveRelativeZ(-camera.MovementVelocity * FrameRateCounter.FrameTime);
@@ -311,15 +347,11 @@ namespace GameWorld
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
-
-            // Hex Sphere
-            //_hexSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
-            //drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
-            drawableSphere.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            //drawableSphere.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
 
             string hintString = "";
 
@@ -349,12 +381,6 @@ namespace GameWorld
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
             spriteBatch.DrawString(generalFont, "Camera type: " + camera.CameraType.ToString(), new Vector2(10, 30), Color.White);
             spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 50), Color.White);
-            spriteBatch.DrawString(generalFont, _customText, new Vector2(50, 10), Color.White);
-
-            //spriteBatch.DrawString(generalFont, $"IntersectChecks: {_hexSphereIntersectionChecksCount}", new Vector2(10, 70), Color.White);
-            //spriteBatch.DrawString(generalFont, $"Selected tile height: {_hexSphere.SelectedTile?.Height}", new Vector2(10, 90), Color.White);
-            //spriteBatch.DrawString(generalFont, $"Selected tile brightness: {_hexSphere.SelectedTile?.Brightness}", new Vector2(10, 110), Color.White);
-            //spriteBatch.DrawString(generalFont, $"Selected tile Long/Lat: {_hexSphere.SelectedTile?.Longitude} / {_hexSphere.SelectedTile?.Latitude}", new Vector2(10, 130), Color.White);
 
             spriteBatch.End();
 

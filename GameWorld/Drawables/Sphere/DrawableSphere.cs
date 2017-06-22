@@ -69,7 +69,7 @@ namespace MonoGameWorld.Drawables.Sphere
             World = Matrix.CreateFromQuaternion(RotationQuaternion) * Matrix.CreateTranslation(Position - cameraOffset);
         }
 
-        public void Draw(Matrix projection, Matrix view)
+        public void Draw(Matrix view, Matrix projection)
         {
             Matrix WorldInverseTranspose = Matrix.Transpose(Matrix.Invert(World));
             Matrix worldViewProjection = World * view * projection;
@@ -78,6 +78,7 @@ namespace MonoGameWorld.Drawables.Sphere
             Effect.Parameters["World"].SetValue(World);
             Effect.Parameters["WorldInverseTranspose"].SetValue(WorldInverseTranspose);
             Effect.Parameters["WorldViewProjection"].SetValue(worldViewProjection);
+            Effect.Parameters["LightDirection"].SetValue(view.Forward);
 
             graphics.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             graphics.GraphicsDevice.Indices = indexBuffer;

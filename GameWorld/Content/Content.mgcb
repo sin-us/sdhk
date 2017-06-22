@@ -105,3 +105,9 @@
 /processorParam:DebugMode=Auto
 /build:Fx/SpecularPerPixel.fx
 
+#begin Fx/PerPixelLighting.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Fx/PerPixelLighting.fx
+
