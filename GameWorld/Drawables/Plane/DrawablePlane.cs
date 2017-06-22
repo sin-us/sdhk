@@ -56,7 +56,7 @@ namespace MonoGameWorld.Drawables.Plane
             {
                 Vector3 position = new Vector3((float)Plane.Vertices[i].X, (float)Plane.Vertices[i].Y, (float)Plane.Vertices[i].Z);
                 Color color = Color.Green;
-                Vector3 normal = Vector3.Forward;
+                Vector3 normal = -Vector3.Forward;
                 Vector2 textureCoordinates = new Vector2((float)Plane.Vertices[i].TextureX, (float)Plane.Vertices[i].TextureY);
                 vertexList.Add(new VertexPositionColorNormalTexture { Position = position, Color = color, Normal = normal, TextureCoordinates = textureCoordinates });
             }
@@ -69,17 +69,15 @@ namespace MonoGameWorld.Drawables.Plane
             World = Matrix.CreateFromQuaternion(RotationQuaternion) * Matrix.CreateTranslation(Position - cameraOffset);
         }
 
-        public void Draw(Matrix projection, Matrix view)
+        public void Draw(Matrix view, Matrix projection)
         {
+            Matrix WorldInverseTranspose = Matrix.Transpose(Matrix.Invert(World));
+            Matrix worldViewProjection = World * view * projection;
+
+            // Set shader matrix parameters.
             Effect.Parameters["World"].SetValue(World);
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
-
-            Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(World));
-            Effect.Parameters["WorldInverseTranspose"].SetValue(worldInverseTransposeMatrix);
-
-            Vector3 viewVector = view.Forward;
-            Effect.Parameters["ViewVector"].SetValue(viewVector);
+            Effect.Parameters["WorldInverseTranspose"].SetValue(WorldInverseTranspose);
+            Effect.Parameters["WorldViewProjection"].SetValue(worldViewProjection);
 
             graphics.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             graphics.GraphicsDevice.Indices = indexBuffer;

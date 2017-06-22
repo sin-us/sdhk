@@ -63,7 +63,8 @@ namespace GameWorld
         private Light light;
         private Material material;
 
-        private Vector3 ld;
+        private Vector3 pos;
+        private Vector3 dir;
 
         public Game1()
         {
@@ -101,11 +102,12 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 50, 50, 1, 1);
-            drawablePlane.Position = new Vector3(-25, -25, 0);
-            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
+            drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 500, 500, 1, 1);
+            /*drawablePlane.Position = new Vector3(-25, -25, 0);
+            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);*/
 
-            ld = Vector3.Zero;
+            pos = new Vector3(25, 25, 30);
+            dir = new Vector3(0, 0, -1);
 
             //drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Earth8k"), 50.0f, 32);
 
@@ -116,14 +118,14 @@ namespace GameWorld
 
             globalAmbient = new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
             light.Type = Light.LightType.SpotLight;
-            light.Direction = new Vector3(-1.0f, 0.0f, -0.5f);
-            light.Position = Vector3.Zero;
+            light.Direction = dir;
+            light.Position = pos;
             light.Ambient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
             light.Diffuse = new Vector4(1.0f, 1.0f, 0.95f, 1.0f);
             light.Specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
             light.SpotInnerConeRadians = MathHelper.ToRadians(20.0f);
-            light.SpotOuterConeRadians = MathHelper.ToRadians(80.0f);
-            light.Radius = 100.0f;
+            light.SpotOuterConeRadians = MathHelper.ToRadians(30.0f);
+            light.Radius = 250.0f;
 
             material.Ambient = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
             material.Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -143,7 +145,6 @@ namespace GameWorld
             generalFont = Content.Load<SpriteFont>("GeneralFont");
 
             effect = Content.Load<Effect>("Fx/PerPixelLighting");
-            //drawablePlane.Effect = effect;
 
             effect.Parameters["CameraPosition"].SetValue(Vector3.Zero);
 
@@ -188,7 +189,8 @@ namespace GameWorld
                     break;
             }
 
-            drawableSphere.Effect = effect;
+            //drawableSphere.Effect = effect;
+            drawablePlane.Effect = effect;
         }
 
         /// <summary>
@@ -263,6 +265,12 @@ namespace GameWorld
             HandleCameraInput();
 
             drawablePlane.Update(camera.Offset);
+            
+            dir = camera.LookAt;
+            //dir = Vector3.Normalize(dir);
+            
+            drawablePlane.Effect.Parameters["LightDirection"].SetValue(dir);
+            drawablePlane.Effect.Parameters["LightPosition"].SetValue(pos);
             //drawableSphere.Rotation += new Vector3(0, 0.001f, 0);
             //drawableSphere.Update(camera.Offset);
 
@@ -350,7 +358,7 @@ namespace GameWorld
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
-            drawablePlane.Draw(camera.ProjectionMatrix, camera.ViewMatrix);
+            drawablePlane.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
             //drawableSphere.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
 
             string hintString = "";
@@ -381,6 +389,7 @@ namespace GameWorld
             spriteBatch.DrawString(generalFont, "FPS: " + FrameRateCounter.FrameRate.ToString(), new Vector2(10, 10), Color.White);
             spriteBatch.DrawString(generalFont, "Camera type: " + camera.CameraType.ToString(), new Vector2(10, 30), Color.White);
             spriteBatch.DrawString(generalFont, hintString, new Vector2(10, 50), Color.White);
+            spriteBatch.DrawString(generalFont, $"Cam: {camera.LookAt}", new Vector2(350, 50), Color.White);
 
             spriteBatch.End();
 
