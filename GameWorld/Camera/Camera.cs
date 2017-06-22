@@ -103,12 +103,9 @@ namespace MonoGameWorld.Camera
             XAxis = new Vector3(ViewMatrix.M11, ViewMatrix.M21, ViewMatrix.M31);
             YAxis = new Vector3(ViewMatrix.M12, ViewMatrix.M22, ViewMatrix.M32);
             ZAxis = new Vector3(ViewMatrix.M13, ViewMatrix.M23, ViewMatrix.M33);
-        }
 
-        private void GetLookAtUpFromViewMatrix()
-        {
-            LookAt = ViewMatrix.Forward;
-            Up = ViewMatrix.Up;
+            LookAt = -ZAxis;
+            Up = YAxis;
         }
 
         public void Update()
@@ -143,8 +140,6 @@ namespace MonoGameWorld.Camera
             }
 
             GetAxisFromViewMatrix();
-            GetLookAtUpFromViewMatrix();
-
             SetIsMoving();
         }
 
