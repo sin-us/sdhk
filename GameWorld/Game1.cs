@@ -88,7 +88,7 @@ namespace GameWorld
         {
             // TODO: Add your initialization logic here
             // zfar is decreased intentionally, because on large values Ray Vector becomes NaN
-            camera = new Camera(new Vector3(0, 0, 100.0f), new Vector3(0.0f, -90.0f, 0.0f), Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
+            camera = new Camera(new Vector3(0, 0, 100.0f), Vector3.Zero/*new Vector3(0.0f, -90.0f, 0.0f)*/, Vector3.UnitY, 45.0f, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight, 0.01f, 10000.0f);
 
             MouseManager.IsPointerVisible = true;
             this.IsMouseVisible = MouseManager.IsPointerVisible;
@@ -99,32 +99,32 @@ namespace GameWorld
             isWireFrame = false;
             isKeybindingsHintShown = false;
 
-            drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 5, 5, 100, 100);
-            drawablePlane.Position = new Vector3(-250, -250, 0);
-            drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
+            //drawablePlane = new DrawablePlane(graphics, Content.Load<Texture2D>("Wall"), 5, 5, 100, 100);
+            //drawablePlane.Position = new Vector3(-250, -250, 0);
+            //drawablePlane.Rotation = new Vector3(MathHelper.ToRadians(-90), 0, 0);
 
-            //drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Earth8k"), 50.0f, 32);
+            drawableSphere = new DrawableSphere(graphics, Content.Load<Texture2D>("Earth8k"), 50.0f, 32);
 
             // Create a new SpriteBatch, which can be used to draw textures / text
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             InputConfigManager.DefaultInitialize();
 
-            globalAmbient = new Vector4(0.1f, 0.1f, 0.1f, 1.0f);
+            globalAmbient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
             light.Type = Light.LightType.SpotLight;
             light.Direction = Vector3.Forward;
             light.Position = Vector3.Zero;
             light.Ambient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-            light.Diffuse = new Vector4(1.0f, 1.0f, 0.95f, 1.0f);
-            light.Specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+            light.Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            light.Specular = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
             light.SpotInnerConeRadians = MathHelper.ToRadians(20.0f);
             light.SpotOuterConeRadians = MathHelper.ToRadians(30.0f);
             light.Radius = 1000.0f;
 
-            material.Ambient = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
+            material.Ambient = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
             material.Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-            material.Specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-            material.Shininess = 0.0f;
+            material.Specular = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            material.Shininess = 500.0f;
 
             base.Initialize();
         }
@@ -162,8 +162,8 @@ namespace GameWorld
             effect.Parameters["MaterialShininess"].SetValue(material.Shininess);
 
             // Bind the texture map to the shader.
-            //effect.Parameters["Texture"].SetValue(drawableSphere.SphereTexture);
-            effect.Parameters["Texture"].SetValue(drawablePlane.PlaneTexture);
+            effect.Parameters["Texture"].SetValue(drawableSphere.SphereTexture);
+            //effect.Parameters["Texture"].SetValue(drawablePlane.PlaneTexture);
 
             switch (light.Type)
             {
@@ -183,8 +183,8 @@ namespace GameWorld
                     break;
             }
 
-            //drawableSphere.Effect = effect;
-            drawablePlane.Effect = effect;
+            drawableSphere.Effect = effect;
+            //drawablePlane.Effect = effect;
         }
 
         /// <summary>
@@ -258,11 +258,12 @@ namespace GameWorld
 
             HandleCameraInput();
 
-            drawablePlane.Update(camera.Offset);
+            //drawablePlane.Update(camera.Offset);            
+            //drawablePlane.Effect.Parameters["LightDirection"].SetValue(-camera.ZAxis);
             
-            drawablePlane.Effect.Parameters["LightDirection"].SetValue(-camera.ZAxis);
-            //drawableSphere.Rotation += new Vector3(0, 0.001f, 0);
-            //drawableSphere.Update(camera.Offset);
+            drawableSphere.Rotation += new Vector3(0, 0.001f, 0);
+            drawableSphere.Update(camera.Offset);
+            drawableSphere.Effect.Parameters["LightDirection"].SetValue(-camera.ZAxis);
 
             base.Update(gameTime);
         }
@@ -348,8 +349,8 @@ namespace GameWorld
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
 
             // Draw any meshes before the text in order for it to be on the top
-            drawablePlane.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
-            //drawableSphere.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
+            //drawablePlane.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
+            drawableSphere.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
 
             string hintString = "";
 

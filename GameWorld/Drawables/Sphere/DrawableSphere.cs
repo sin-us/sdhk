@@ -78,7 +78,6 @@ namespace MonoGameWorld.Drawables.Sphere
             Effect.Parameters["World"].SetValue(World);
             Effect.Parameters["WorldInverseTranspose"].SetValue(WorldInverseTranspose);
             Effect.Parameters["WorldViewProjection"].SetValue(worldViewProjection);
-            Effect.Parameters["LightDirection"].SetValue(view.Forward);
 
             graphics.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             graphics.GraphicsDevice.Indices = indexBuffer;
